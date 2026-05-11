@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex" />
+  <title>Review pay info — Acme HR</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="core-app.css" />
+</head>
+<body>
+  <div class="page">
+    <div class="breadcrumbs">
+      <a href="enrollment-hub.html">Home</a><span>/</span>Review pay info
+    </div>
+    <h1 class="page-title">Your company and team</h1>
+
+    <ol class="stepper" id="stepper"></ol>
+
+    <div class="table-wrap">
+      <div class="table-toolbar">
+        <div class="toolbar-left" id="toolbar-count"></div>
+        <div class="toolbar-right">
+          <button class="btn-secondary" id="remove-selected" hidden>Remove selected</button>
+          <button class="btn-add" data-add-member>+ Add team member</button>
+        </div>
+      </div>
+      <table class="census">
+        <thead>
+          <tr>
+            <th style="width: 36px;"><input type="checkbox" id="select-all" /></th>
+            <th style="width: 180px;">Employee</th>
+            <th>Pay type</th>
+            <th>Annual salary</th>
+            <th>Hourly wage</th>
+            <th>Hours per week</th>
+            <th>Exemption status</th>
+          </tr>
+        </thead>
+        <tbody id="members-body"></tbody>
+      </table>
+    </div>
+    <button class="btn-add" data-add-member style="margin-top: 12px;">+ Add team member</button>
+
+    <div class="action-footer">
+      <div class="action-footer-inner">
+        <button class="btn-secondary" id="go-back">Back</button>
+        <button class="btn-primary" id="save-continue">Save &amp; continue</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="reset.js"></script>
+  <script src="store.js"></script>
+  <script src="core-app.js"></script>
+  <script>
+    const state = window.coreApp.get();
+    const ref = window.CORE_APP_REF;
+
+    // Health insurance info is always the 5th step
+    const stepper = document.getElementById('stepper');
+    const steps = [
+      { label: 'About your company', status: 'done' },
+      { label: 'About your team', status: 'done' },
+      { label: 'Review job details', status: 'done' },
+      { label: 'Review pay info', status: 'current' },
+      { label: 'Health insurance info', status: 'pending' },
+    ];
+    steps.forEach((s, i) => {
+      const li = document.createElement('li');
+      li.className = 'step' + (s.status === 'current' ? ' current' : s.status === 'done' ? ' done' : '');
+      li.innerHTML = `<span class="step-num">${s.status === 'done' ? '✓' : i + 1}</span>${s.label}`;
+      stepper.appendChild(li);
+    });
+
+    const continueBtn = document.getElementById('save-continue');
+    continueBtn.textContent = 'Save & continue';
+
+    const selectedIds = new Set();
+
+    function renderRows() {
+      const body = document.getElementById('members-body');
+      body.innerHTML = '';
+      state.members.forEach((m) => body.appendChild(buildRow(m)));
+      document.getElementById('toolbar-count').textContent =
+        `${state.members.length} team member${state.members.length === 1 ? '' : 's'}`;
+      document.getElementById('select-all').checked =
+        state.members.length > 0 && selectedIds.size === state.members.length;
+      document.getElementById('remove-selected').hidden = selectedIds.size === 0;
+    }
+
+    function isUnpaidOwner(type) { return type === 'Owner/Partner Unpaid'; }
+
+    function buildRow(m) {
+      const tr = document.createElement('tr');
+
+      const selTd = document.createElement('td');
+      const cb = document.createElement('input');
+      cb.type = 'checkbox';
+      cb.checked = selectedIds.has(m.uuid);
+      cb.addEventListener('change', () => {
+        if (cb.checked) selectedIds.add(m.uuid); else selectedIds.delete(m.uuid);
+      });
+      selTd.appendChild(cb);
+      tr.appendChild(selTd);
+
+      const nameTd = document.createElement('td');
+      nameTd.innerHTML = `<span class="readonly-cell">${m.first_name || ''} ${m.last_name || ''}</span>`.trim();
+      tr.appendChild(nameTd);
+
+      const unpaid = isUnpaidOwner(m.employee_type);
+
+      // Pay type
+      const typeTd = document.createElement('td');
+      if (!unpaid) {
+        const sel = document.createElement('select');
+        sel.innerHTML = '<option value=""></option>' +
+          ref.salaryTypes.map((t) => `<option value="${t.value}">${t.label}</option>`).join('');
+        sel.value = m.employee_information.salaryType || '';
+        sel.addEventListener('change', () => {
+          m.employee_information.salaryType = sel.value;
+          window.coreApp.save();
+          renderRows();
+        });
+        typeTd.appendChild(sel);
+      } else {
+        typeTd.innerHTML = '<span class="readonly-cell">—</span>';
+      }
+      tr.appendChild(typeTd);
+
+      // Annual salary
+      const salTd = document.createElement('td');
+      if (!unpaid && m.employee_information.salaryType !== 'Hourly rate') {
+        const inp = document.createElement('input');
+        inp.type = 'number';
+        inp.value = m.employee_information.salary || '';
+        inp.addEventListener('input', () => {
+          m.employee_information.salary = inp.value;
+          window.coreApp.save();
+        });
+        salTd.appendChild(inp);
+      } else {
+        salTd.innerHTML = '<span class="readonly-cell">—</span>';
+      }
+      tr.appendChild(salTd);
+
+      // Hourly rate
+      const hrTd = document.createElement('td');
+      if (!unpaid && m.employee_information.salaryType !== 'Annual salary') {
+        const inp = document.createElement('input');
+        inp.type = 'number';
+        inp.min = '1';
+        inp.value = m.employee_information.hourlyRate || '';
+        inp.addEventListener('input', () => {
+          m.employee_information.hourlyRate = inp.value;
+          window.coreApp.save();
+        });
+        hrTd.appendChild(inp);
+      } else {
+        hrTd.innerHTML = '<span class="readonly-cell">—</span>';
+      }
+      tr.appendChild(hrTd);
+
+      // Hours / week
+      const hpwTd = document.createElement('td');
+      if (!unpaid && m.employee_information.salaryType !== 'Annual salary') {
+        const inp = document.createElement('input');
+        inp.type = 'number';
+        inp.min = '1';
+        inp.max = '168';
+        inp.value = m.employee_information.hoursWeekly || '';
+        inp.addEventListener('input', () => {
+          m.employee_information.hoursWeekly = inp.value;
+          window.coreApp.save();
+        });
+        hpwTd.appendChild(inp);
+      } else {
+        hpwTd.innerHTML = '<span class="readonly-cell">—</span>';
+      }
+      tr.appendChild(hpwTd);
+
+      // Exemption status
+      const exTd = document.createElement('td');
+      if (!unpaid) {
+        const sel = document.createElement('select');
+        sel.innerHTML = '<option value=""></option>' +
+          ref.exemptionStatuses.map((t) => `<option value="${t.value}">${t.label}</option>`).join('');
+        sel.value = m.employee_information.exemptionStatus || '';
+        sel.addEventListener('change', () => {
+          m.employee_information.exemptionStatus = sel.value;
+          window.coreApp.save();
+        });
+        exTd.appendChild(sel);
+      } else {
+        exTd.innerHTML = '<span class="readonly-cell">—</span>';
+      }
+      tr.appendChild(exTd);
+
+      return tr;
+    }
+
+    document.getElementById('select-all').addEventListener('change', (e) => {
+      selectedIds.clear();
+      if (e.target.checked) state.members.forEach((m) => selectedIds.add(m.uuid));
+      renderRows();
+    });
+
+    document.getElementById('remove-selected').addEventListener('click', () => {
+      window.coreApp.removeMembers([...selectedIds]);
+      selectedIds.clear();
+      renderRows();
+    });
+
+    window.addEventListener('pd:members-updated', renderRows);
+
+    document.getElementById('go-back').addEventListener('click', () => {
+      window.location.href = 'core-app-job-details.html';
+    });
+    continueBtn.addEventListener('click', () => {
+      window.coreApp.markStepDone('pay');
+      window.location.href = 'core-app-health.html';
+    });
+
+    renderRows();
+  </script>
+  <script src="member-drawer.js"></script>
+</body>
+</html>

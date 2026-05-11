@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex" />
+  <title>About your business — Workers' Comp</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="core-app.css" />
+  <style>
+    .website-row {
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+      margin-bottom: 8px;
+    }
+    .website-row input { flex: 1; }
+    .remove-btn {
+      border: none;
+      background: none;
+      color: #DC2626;
+      cursor: pointer;
+      padding: 10px 8px;
+      border-radius: 4px;
+    }
+    .remove-btn:hover { background: #FEF2F2; }
+    .file-upload {
+      padding: 20px;
+      border: 2px dashed #BFDBFE;
+      border-radius: 8px;
+      text-align: center;
+      background: white;
+    }
+    .file-upload input[type="file"] { display: none; }
+    .file-upload label {
+      color: #1A56DB;
+      font-weight: 600;
+      text-decoration: underline;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .file-upload .hint { font-size: 12px; color: #6B7280; margin-top: 6px; }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="breadcrumbs">
+      <a href="enrollment-hub.html">Home</a><span>/</span>About your business
+    </div>
+    <h1 class="page-title">Tell us a little bit about your company</h1>
+
+    <ol class="stepper" id="stepper"></ol>
+
+    <form class="form-wrap" id="form" onsubmit="return false">
+      <div class="section">
+        <h2 class="section-heading">About your business</h2>
+        <p class="section-description">A business description gives us an overall understanding of your company and industry.</p>
+
+        <div class="field">
+          <label class="field-label" for="business_description">Describe your core business activities</label>
+          <div class="field-hint">Tell us about the primary products or services you offer, how you attract and serve customers, and the main ways you generate revenue.</div>
+          <textarea id="business_description" rows="4" placeholder="We run an online learning platform that offers self-paced courses, live sessions, and certifications. We attract users through free trials and we generate revenue with subscriptions."></textarea>
+        </div>
+
+        <div class="field">
+          <label class="field-label">Company website and links</label>
+          <div class="field-hint">This helps us verify your business. Add your company website, LinkedIn pages, and any other online presence.</div>
+          <div id="website-list"></div>
+          <button type="button" class="btn-add" id="add-website" style="margin-top: 6px;">+ Add another website</button>
+        </div>
+
+        <div class="field">
+          <label class="field-label">Attach any relevant documents to verify the business <span class="field-optional">Optional</span></label>
+          <div class="field-hint">Accepted file types: PDF</div>
+          <div class="file-upload">
+            <input id="verify-file" type="file" accept=".pdf" />
+            <label for="verify-file">Click to upload a file</label>
+            <div class="hint">PDF only</div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="field-label" for="daily_operations">What is a typical day-to-day operation for your business?</label>
+          <div class="field-hint">Tell us about the specific tasks performed by your employees and their work environment.</div>
+          <textarea id="daily_operations" rows="4" placeholder="Instructors create content, engineers enhance features, and marketing drives engagement. We operate remotely with daily collaboration and flexible schedules."></textarea>
+        </div>
+
+        <div class="field">
+          <label class="field-label">Are any of your employees currently covered by a union collective bargaining agreement or do you anticipate any will be?</label>
+          <div class="radio-buttons" data-group="has_union_workers">
+            <label><input type="radio" name="has_union_workers" value="true" /><span>Yes</span></label>
+            <label><input type="radio" name="has_union_workers" value="false" /><span>No</span></label>
+          </div>
+        </div>
+      </div>
+    </form>
+
+    <div class="action-footer">
+      <div class="action-footer-inner">
+        <button class="btn-secondary" id="back-btn">Back</button>
+        <button class="btn-primary" id="continue-btn">Save &amp; continue</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="reset.js"></script>
+  <script src="core-app.js"></script>
+  <script src="wc-app.js"></script>
+  <script src="wc-stepper.js"></script>
+  <script>
+    wcRenderStepper(2);
+    const state = window.wcApp.get();
+    const ay = state.about_your_business;
+
+    document.getElementById('business_description').value = ay.business_description || '';
+    document.getElementById('daily_operations').value = ay.daily_operations || '';
+
+    const websites = (ay.websites && ay.websites.length) ? ay.websites.slice() : [''];
+    renderWebsites();
+
+    function renderWebsites() {
+      const list = document.getElementById('website-list');
+      list.innerHTML = '';
+      websites.forEach((url, i) => {
+        const row = document.createElement('div');
+        row.className = 'website-row';
+        row.innerHTML = `
+          <input type="text" value="${url.replace(/"/g, '&quot;')}" placeholder="https://..." data-i="${i}" />
+          ${i > 0 ? `<button type="button" class="remove-btn" data-remove="${i}" aria-label="Remove">🗑</button>` : ''}
+        `;
+        list.appendChild(row);
+      });
+      list.querySelectorAll('input').forEach((inp) =>
+        inp.addEventListener('input', () => { websites[Number(inp.dataset.i)] = inp.value; })
+      );
+      list.querySelectorAll('[data-remove]').forEach((b) =>
+        b.addEventListener('click', () => {
+          websites.splice(Number(b.dataset.remove), 1);
+          renderWebsites();
+        })
+      );
+    }
+    document.getElementById('add-website').addEventListener('click', () => {
+      websites.push('');
+      renderWebsites();
+    });
+
+    function wireRadio(group, onChange) {
+      document.querySelectorAll(`[data-group="${group}"] label`).forEach((label) => {
+        const input = label.querySelector('input');
+        input.addEventListener('change', () => {
+          document.querySelectorAll(`[data-group="${group}"] label`).forEach((l) => l.classList.remove('checked'));
+          label.classList.add('checked');
+          if (onChange) onChange(input.value === 'true');
+        });
+      });
+    }
+    function setRadio(group, val) {
+      if (val == null) return;
+      document.querySelectorAll(`[data-group="${group}"] label`).forEach((l) => {
+        const input = l.querySelector('input');
+        if (String(input.value) === String(val)) { input.checked = true; l.classList.add('checked'); }
+      });
+    }
+    wireRadio('has_union_workers');
+    setRadio('has_union_workers', ay.has_union_workers);
+
+    document.getElementById('back-btn').addEventListener('click', () => {
+      window.location.href = 'wc-about-your-team.html';
+    });
+    document.getElementById('continue-btn').addEventListener('click', () => {
+      ay.business_description = document.getElementById('business_description').value;
+      ay.daily_operations = document.getElementById('daily_operations').value;
+      ay.websites = websites.slice();
+      const v = document.querySelector('input[name="has_union_workers"]:checked')?.value;
+      ay.has_union_workers = v == null ? null : v === 'true';
+      window.wcApp.save();
+      window.wcApp.markStepDone('about-your-business');
+      window.location.href = 'wc-business-attributes.html';
+    });
+  </script>
+</body>
+</html>

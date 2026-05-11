@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex" />
+  <title>Attach documents — Workers' Comp</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="core-app.css" />
+  <style>
+    .file-upload {
+      padding: 24px;
+      border: 2px dashed #BFDBFE;
+      border-radius: 8px;
+      text-align: center;
+      background: white;
+    }
+    .file-upload input[type="file"] { display: none; }
+    .file-upload label {
+      color: #1A56DB; font-weight: 600; text-decoration: underline; cursor: pointer; font-size: 14px;
+    }
+    .file-upload .hint { font-size: 12px; color: #6B7280; margin-top: 6px; }
+
+    .option-radio {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .option-radio label {
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px 14px;
+      border: 1.5px solid #D1D5DB;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      color: #111827;
+    }
+    .option-radio label.checked { border-color: #1A56DB; background: #EFF6FF; }
+    .option-radio input { accent-color: #1A56DB; }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="breadcrumbs">
+      <a href="enrollment-hub.html">Home</a><span>/</span>Attach documents
+    </div>
+    <h1 class="page-title">Tell us a little bit about your company</h1>
+
+    <ol class="stepper" id="stepper"></ol>
+
+    <form class="form-wrap" id="form" onsubmit="return false">
+      <div class="section">
+        <h2 class="section-heading">Attach documents</h2>
+        <p class="section-description">See below for a list of the required documentation that we will need from you. Please only include PDFs.</p>
+
+        <div class="field">
+          <label class="field-label">Entity formation documents</label>
+          <div class="field-hint">Articles/certificates are a common way to show that a business entity exists. These may be called Articles of Incorporation, Partnership Agreements, Operating Agreements, or Articles of Formation. You should already have a copy of your entity formation documents, but if you can't find it, you can request a new one from the applicable state.</div>
+          <div class="file-upload">
+            <input id="entity-file" type="file" accept=".pdf" />
+            <label for="entity-file">Click to upload a file</label>
+            <div class="hint">PDF only</div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="field-label">Loss run report <span class="field-optional">Optional</span></label>
+          <div class="field-hint">This document contains information about your existing workers' compensation policy, including any claims (losses) you may have had during the past five years. You can obtain this by contacting your current workers' compensation carrier.</div>
+          <div class="file-upload">
+            <input id="loss-file" type="file" accept=".pdf" />
+            <label for="loss-file">Click to upload a file</label>
+            <div class="hint">PDF only</div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="field-label">Don't have a loss run report? Let us know why:</label>
+          <div class="option-radio" data-group="no_loss_run_report_reason">
+            <label><input type="radio" name="no_loss_run_report_reason" value="no_prior_employees" /><span>Our company didn't have previous W-2 employees.</span></label>
+            <label><input type="radio" name="no_loss_run_report_reason" value="waiting_on_carrier" /><span>Will send it out when our current carrier provides it</span></label>
+            <label><input type="radio" name="no_loss_run_report_reason" value="Other" /><span>Other</span></label>
+          </div>
+        </div>
+
+        <div class="field" id="other-reason" hidden>
+          <label class="field-label" for="no_loss_run_report_other_reason">Please explain why</label>
+          <textarea id="no_loss_run_report_other_reason" rows="3"></textarea>
+        </div>
+      </div>
+    </form>
+
+    <div class="action-footer">
+      <div class="action-footer-inner">
+        <button class="btn-secondary" id="back-btn">Back</button>
+        <button class="btn-primary" id="continue-btn">Save &amp; continue</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="reset.js"></script>
+  <script src="wc-app.js"></script>
+  <script src="wc-stepper.js"></script>
+  <script>
+    wcRenderStepper(4);
+    const state = window.wcApp.get();
+    const ad = state.attach_documents;
+
+    function wireOption(group, onChange) {
+      document.querySelectorAll(`[data-group="${group}"] label`).forEach((label) => {
+        const input = label.querySelector('input');
+        input.addEventListener('change', () => {
+          document.querySelectorAll(`[data-group="${group}"] label`).forEach((l) => l.classList.remove('checked'));
+          label.classList.add('checked');
+          if (onChange) onChange(input.value);
+        });
+      });
+    }
+    wireOption('no_loss_run_report_reason', (val) => {
+      document.getElementById('other-reason').hidden = val !== 'Other';
+    });
+
+    if (ad.no_loss_run_report_reason) {
+      document.querySelectorAll('[data-group="no_loss_run_report_reason"] label').forEach((l) => {
+        const input = l.querySelector('input');
+        if (input.value === ad.no_loss_run_report_reason) { input.checked = true; l.classList.add('checked'); }
+      });
+      if (ad.no_loss_run_report_reason === 'Other') document.getElementById('other-reason').hidden = false;
+    }
+    document.getElementById('no_loss_run_report_other_reason').value = ad.no_loss_run_report_other_reason || '';
+
+    document.getElementById('back-btn').addEventListener('click', () => {
+      window.location.href = 'wc-business-attributes.html';
+    });
+    document.getElementById('continue-btn').addEventListener('click', () => {
+      ad.no_loss_run_report_reason = document.querySelector('input[name="no_loss_run_report_reason"]:checked')?.value || '';
+      ad.no_loss_run_report_other_reason = document.getElementById('no_loss_run_report_other_reason').value;
+      window.wcApp.save();
+      window.wcApp.markStepDone('attach-documents');
+      window.location.href = 'wc-epli.html';
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex" />
+  <title>Log in — Acme HR</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    body { background: #FFFFFF; }
+
+    .login-page {
+      min-height: 100vh;
+      display: flex;
+    }
+
+    .login-left {
+      width: 360px;
+      flex-shrink: 0;
+      background: linear-gradient(145deg, #6366f1 0%, #818cf8 40%, #a78bfa 100%);
+      padding: 36px 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 40px;
+      color: white;
+    }
+    .login-logo {
+      display: inline-block;
+      align-self: flex-start;
+      font-size: 23px;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      line-height: 1;
+      color: #FFFFFF;
+      text-decoration: underline;
+      text-decoration-color: #0B8FBE;
+      text-decoration-thickness: 3px;
+      text-underline-offset: 2px;
+      white-space: nowrap;
+    }
+    .login-left-body h2 { font-size: 26px; font-weight: 700; line-height: 1.25; margin: 0 0 8px; }
+    .login-left-sub { font-size: 14px; opacity: 0.85; margin: 0; }
+
+    .login-right {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 72px 64px;
+    }
+    .login-form-wrap { width: 100%; max-width: 420px; }
+    .login-form-wrap h1 { font-size: 24px; font-weight: 700; color: #111827; margin: 0 0 6px; line-height: 1.3; }
+    .login-sub { font-size: 14px; color: #6b7280; margin: 0 0 24px; line-height: 1.5; }
+    .login-sub a { color: #1A56DB; }
+
+    .login-field { margin-bottom: 16px; }
+    .login-field label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: #111827;
+      margin-bottom: 5px;
+    }
+    .login-field input {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1.5px solid #d1d5db;
+      border-radius: 6px;
+      font-size: 14px;
+      color: #111827;
+      box-sizing: border-box;
+      font-family: inherit;
+      transition: border-color 0.15s;
+    }
+    .login-field input:focus { outline: none; border-color: #1A56DB; }
+
+    .login-input-icon { position: relative; }
+    .login-input-icon input { padding-right: 40px; }
+    .eye-btn {
+      position: absolute; right: 10px; top: 50%;
+      transform: translateY(-50%);
+      background: none; border: none; cursor: pointer; font-size: 15px; padding: 0;
+    }
+
+    .forgot-row {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 18px;
+    }
+    .forgot-link {
+      font-size: 13px;
+      color: #1A56DB;
+      text-decoration: none;
+    }
+    .forgot-link:hover { text-decoration: underline; }
+
+    .login-cta {
+      display: block;
+      width: 100%;
+      padding: 13px;
+      background: #1A56DB;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background 0.15s;
+    }
+    .login-cta:hover { background: #1644b0; }
+
+    .signup-line {
+      text-align: center;
+      font-size: 13px;
+      color: #6b7280;
+      margin-top: 20px;
+    }
+    .signup-line a { color: #1A56DB; text-decoration: none; font-weight: 600; }
+    .signup-line a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="login-page">
+
+    <aside class="login-left">
+      <span class="login-logo">Acme HR</span>
+      <div class="login-left-body">
+        <h2>Welcome back</h2>
+        <p class="login-left-sub">Log in to continue your application.</p>
+      </div>
+    </aside>
+
+    <main class="login-right">
+      <div class="login-form-wrap">
+        <h1>Log in</h1>
+        <p class="login-sub">Enter your credentials to continue.</p>
+
+        <form id="login-form" onsubmit="return false">
+          <div class="login-field">
+            <label for="login-username">Username</label>
+            <input id="login-username" type="text" autocomplete="username" />
+          </div>
+
+          <div class="login-field">
+            <label for="login-password">Password</label>
+            <div class="login-input-icon">
+              <input id="login-password" type="text" />
+              <button class="eye-btn" type="button" id="toggle-pw">👁</button>
+            </div>
+          </div>
+
+          <div class="forgot-row">
+            <a class="forgot-link" href="#">Forgot your password?</a>
+          </div>
+
+          <button class="login-cta" id="login-submit">Log in</button>
+        </form>
+
+        <p class="signup-line">Don't have an account? <a href="register.html">Sign up</a></p>
+      </div>
+    </main>
+  </div>
+
+  <script src="reset.js"></script>
+  <script>
+    document.getElementById('toggle-pw').addEventListener('click', () => {
+      const inp = document.getElementById('login-password');
+      const showing = inp.type === 'text';
+      inp.type = showing ? 'password' : 'text';
+      document.getElementById('toggle-pw').textContent = showing ? '👁' : '🙈';
+    });
+
+    document.getElementById('login-submit').addEventListener('click', () => {
+      window.location.href = 'enrollment-hub.html';
+    });
+  </script>
+</body>
+</html>

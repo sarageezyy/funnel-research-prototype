@@ -1,0 +1,166 @@
+:root {
+  --color-primary: #1A56DB;
+  --color-primary-hover: #1644b0;
+  --color-primary-light: #eef2ff;
+  --color-primary-border: #c7d2fe;
+  --color-text-primary: #111827;
+  --color-text-secondary: #6b7280;
+  --color-text-muted: #9ca3af;
+  --color-border: #e5e7eb;
+  --color-border-strong: #d1d5db;
+  --color-surface: #f9fafb;
+  --color-white: #ffffff;
+  --color-success: #16a34a;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+  color: var(--color-text-primary);
+  background: var(--color-white);
+  -webkit-font-smoothing: antialiased;
+}
+
+button { font-family: inherit; cursor: pointer; }
+
+/* ------------------------------------------------------------------
+   QuestionCard shell — shared by location / priority / timeline / open
+   ------------------------------------------------------------------ */
+.qc-wrap {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-surface);
+}
+.qc-top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 32px 12px;
+}
+.qc-back {
+  background: none;
+  border: none;
+  font-size: 14px;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  padding: 0;
+  font-family: inherit;
+  text-decoration: none;
+}
+.qc-back:hover { color: var(--color-text-primary); }
+.qc-back-spacer { display: inline-block; width: 48px; }
+.qc-step-label { font-size: 14px; color: var(--color-text-secondary); }
+
+.qc-progress {
+  height: 3px;
+  background: var(--color-border);
+}
+.qc-progress-fill {
+  height: 100%;
+  background: var(--color-primary);
+  transition: width 0.3s ease;
+}
+
+.qc-body {
+  max-width: 560px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 40px 24px 16px;
+}
+.qc-intro {
+  background: var(--color-primary-light);
+  border: 1px solid var(--color-primary-border);
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 14px;
+  color: #374151;
+  line-height: 1.55;
+  margin-bottom: 20px;
+}
+.qc-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin: 0 0 14px;
+  line-height: 1.3;
+}
+.qc-why { margin-bottom: 20px; }
+.qc-why-summary {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-primary);
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  user-select: none;
+}
+.qc-why-summary::-webkit-details-marker { display: none; }
+.qc-why-summary::after {
+  content: '▾';
+  font-size: 12px;
+  transition: transform 0.15s;
+}
+details[open] .qc-why-summary::after { transform: rotate(180deg); }
+.qc-why-body {
+  font-size: 14px;
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+  margin-top: 8px;
+  padding: 12px 14px;
+  background: var(--color-white);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+}
+
+.qc-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.qc-footer {
+  max-width: 560px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 20px 24px 48px;
+}
+.qc-continue {
+  display: block;
+  width: 100%;
+  padding: 14px;
+  background: var(--color-primary);
+  color: var(--color-white);
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, opacity 0.15s;
+}
+.qc-continue:hover:not(:disabled) { background: var(--color-primary-hover); }
+.qc-continue:disabled { opacity: 0.35; cursor: not-allowed; }
+
+/* Shared option card (radio/checkbox row) */
+.option {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 14px 16px;
+  border: 1.5px solid var(--color-border);
+  border-radius: 8px;
+  cursor: pointer;
+  background: var(--color-white);
+  transition: border-color 0.15s;
+}
+.option:hover { border-color: var(--color-primary); }
+.option.selected { border-color: var(--color-primary); background: var(--color-primary-light); }
+.opt-radio { margin-top: 3px; accent-color: var(--color-primary); flex-shrink: 0; }
+.opt-text { display: flex; flex-direction: column; gap: 4px; }
+.opt-label { font-size: 15px; font-weight: 500; color: var(--color-text-primary); }
+.opt-hint { font-size: 13px; font-weight: 400; color: var(--color-text-secondary); line-height: 1.5; }

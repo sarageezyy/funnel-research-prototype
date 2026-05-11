@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex" />
+  <title>Review job details — Acme HR</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="core-app.css" />
+</head>
+<body>
+  <div class="page">
+    <div class="breadcrumbs">
+      <a href="enrollment-hub.html">Home</a><span>/</span>Review job details
+    </div>
+    <h1 class="page-title">Your company and team</h1>
+
+    <ol class="stepper">
+      <li class="step done"><span class="step-num">✓</span>About your company</li>
+      <li class="step done"><span class="step-num">✓</span>About your team</li>
+      <li class="step current"><span class="step-num">3</span>Review job details</li>
+      <li class="step"><span class="step-num">4</span>Review pay info</li>
+      <li class="step"><span class="step-num">5</span>Health insurance info</li>
+    </ol>
+
+    <div class="table-wrap">
+      <div class="table-toolbar">
+        <div class="toolbar-left" id="toolbar-count"></div>
+        <div class="toolbar-right">
+          <button class="btn-secondary" id="remove-selected" hidden>Remove selected</button>
+          <button class="btn-add" data-add-member>+ Add team member</button>
+        </div>
+      </div>
+      <table class="census">
+        <thead>
+          <tr>
+            <th style="width: 36px;"><input type="checkbox" id="select-all" /></th>
+            <th style="width: 180px;">Employee</th>
+            <th>Job title</th>
+            <th style="min-width: 240px;">Job duty</th>
+            <th>Remote</th>
+            <th>Office location</th>
+            <th>Home address</th>
+          </tr>
+        </thead>
+        <tbody id="members-body"></tbody>
+      </table>
+    </div>
+    <button class="btn-add" data-add-member style="margin-top: 12px;">+ Add team member</button>
+
+    <div class="action-footer">
+      <div class="action-footer-inner">
+        <button class="btn-secondary" id="go-back">Back</button>
+        <button class="btn-primary" id="save-continue">Save &amp; continue</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Address drawer -->
+  <div class="drawer-backdrop" id="addr-backdrop"></div>
+  <aside class="drawer" id="addr-drawer">
+    <div class="drawer-header">
+      <h3>Home address</h3>
+      <button class="drawer-close" id="addr-close">×</button>
+    </div>
+    <div class="drawer-body">
+      <div class="field">
+        <label class="field-label" for="a-addr1">Address line 1</label>
+        <input id="a-addr1" type="text" />
+      </div>
+      <div class="field">
+        <label class="field-label" for="a-addr2">Address line 2 <span class="field-optional">Optional</span></label>
+        <input id="a-addr2" type="text" />
+      </div>
+      <div class="row">
+        <div class="field">
+          <label class="field-label" for="a-city">City</label>
+          <input id="a-city" type="text" />
+        </div>
+        <div class="field">
+          <label class="field-label" for="a-state">State</label>
+          <select id="a-state"><option value="" disabled selected></option></select>
+        </div>
+        <div class="field">
+          <label class="field-label" for="a-zip">Zip</label>
+          <input id="a-zip" type="text" />
+        </div>
+      </div>
+    </div>
+    <div class="drawer-footer">
+      <button class="btn-secondary" id="addr-cancel">Cancel</button>
+      <button class="btn-primary" id="addr-save">Save address</button>
+    </div>
+  </aside>
+
+  <script src="reset.js"></script>
+  <script src="store.js"></script>
+  <script src="core-app.js"></script>
+  <script>
+    const state = window.coreApp.get();
+    const ref = window.CORE_APP_REF;
+
+    // Populate state options in drawer once
+    const stateSelect = document.getElementById('a-state');
+    ref.states.forEach((s) => {
+      const opt = document.createElement('option');
+      opt.value = s;
+      opt.textContent = s;
+      stateSelect.appendChild(opt);
+    });
+
+    function officeOptionsHtml(selected) {
+      return '<option value=""></option>' +
+        state.offices.map((o) => {
+          const sel = selected === o.id ? ' selected' : '';
+          return `<option value="${o.id}"${sel}>${o.location_name || o.city || 'Office'}</option>`;
+        }).join('');
+    }
+
+    const selectedIds = new Set();
+    let editingUuid = null;
+
+    function renderRows() {
+      const body = document.getElementById('members-body');
+      body.innerHTML = '';
+      state.members.forEach((m) => body.appendChild(buildRow(m)));
+      document.getElementById('toolbar-count').textContent =
+        `${state.members.length} team member${state.members.length === 1 ? '' : 's'}`;
+      document.getElementById('select-all').checked =
+        state.members.length > 0 && selectedIds.size === state.members.length;
+      document.getElementById('remove-selected').hidden = selectedIds.size === 0;
+    }
+
+    function buildRow(m) {
+      const tr = document.createElement('tr');
+
+      const selTd = document.createElement('td');
+      const cb = document.createElement('input');
+      cb.type = 'checkbox';
+      cb.checked = selectedIds.has(m.uuid);
+      cb.addEventListener('change', () => {
+        if (cb.checked) selectedIds.add(m.uuid); else selectedIds.delete(m.uuid);
+      });
+      selTd.appendChild(cb);
+      tr.appendChild(selTd);
+
+      const nameTd = document.createElement('td');
+      nameTd.innerHTML = `<span class="readonly-cell">${m.first_name || ''} ${m.last_name || ''}</span>`.trim();
+      tr.appendChild(nameTd);
+
+      // Title
+      const titleTd = document.createElement('td');
+      const titleInp = document.createElement('input');
+      titleInp.type = 'text';
+      titleInp.value = m.employee_information.title || '';
+      titleInp.addEventListener('input', () => {
+        m.employee_information.title = titleInp.value;
+        window.coreApp.save();
+      });
+      titleTd.appendChild(titleInp);
+      tr.appendChild(titleTd);
+
+      // Duties
+      const dutyTd = document.createElement('td');
+      const dutyInp = document.createElement('input');
+      dutyInp.type = 'text';
+      dutyInp.value = m.employee_information.roleDescription || '';
+      dutyInp.addEventListener('input', () => {
+        m.employee_information.roleDescription = dutyInp.value;
+        window.coreApp.save();
+      });
+      dutyTd.appendChild(dutyInp);
+      tr.appendChild(dutyTd);
+
+      // Remote
+      const remTd = document.createElement('td');
+      const remSel = document.createElement('select');
+      remSel.innerHTML = `
+        <option value=""></option>
+        <option value="true">Yes</option>
+        <option value="false">No</option>
+      `;
+      remSel.value = m.employee_information.isRemote == null ? '' : String(m.employee_information.isRemote);
+      remSel.addEventListener('change', () => {
+        m.employee_information.isRemote = remSel.value === '' ? null : remSel.value === 'true';
+        window.coreApp.save();
+        renderRows();
+      });
+      remTd.appendChild(remSel);
+      tr.appendChild(remTd);
+
+      // Office
+      const offTd = document.createElement('td');
+      if (m.employee_information.isRemote !== true) {
+        offTd.innerHTML = `<select>${officeOptionsHtml(m.office_location_id)}</select>`;
+        const offSel = offTd.querySelector('select');
+        offSel.addEventListener('change', () => {
+          m.office_location_id = offSel.value;
+          window.coreApp.save();
+        });
+      } else {
+        offTd.innerHTML = '<span class="readonly-cell">—</span>';
+      }
+      tr.appendChild(offTd);
+
+      // Home address
+      const addrTd = document.createElement('td');
+      if (m.employee_information.isRemote === true) {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'add-dep-btn';
+        const a = m.employee_information.remoteAddress;
+        const summary = a.address1 ? `${a.address1}, ${a.city || ''} ${a.state || ''}` : 'Add address';
+        btn.textContent = summary;
+        btn.addEventListener('click', () => openAddressDrawer(m));
+        addrTd.appendChild(btn);
+      } else {
+        addrTd.innerHTML = '<span class="readonly-cell">—</span>';
+      }
+      tr.appendChild(addrTd);
+
+      return tr;
+    }
+
+    function openAddressDrawer(m) {
+      editingUuid = m.uuid;
+      const a = m.employee_information.remoteAddress || {};
+      document.getElementById('a-addr1').value = a.address1 || '';
+      document.getElementById('a-addr2').value = a.address2 || '';
+      document.getElementById('a-city').value = a.city || '';
+      document.getElementById('a-state').value = a.state || '';
+      document.getElementById('a-zip').value = a.zip || '';
+      document.getElementById('addr-backdrop').classList.add('open');
+      document.getElementById('addr-drawer').classList.add('open');
+    }
+    function closeAddressDrawer() {
+      editingUuid = null;
+      document.getElementById('addr-backdrop').classList.remove('open');
+      document.getElementById('addr-drawer').classList.remove('open');
+    }
+
+    document.getElementById('addr-backdrop').addEventListener('click', closeAddressDrawer);
+    document.getElementById('addr-close').addEventListener('click', closeAddressDrawer);
+    document.getElementById('addr-cancel').addEventListener('click', closeAddressDrawer);
+    document.getElementById('addr-save').addEventListener('click', () => {
+      const m = state.members.find((x) => x.uuid === editingUuid);
+      if (!m) return closeAddressDrawer();
+      m.employee_information.remoteAddress = {
+        address1: document.getElementById('a-addr1').value,
+        address2: document.getElementById('a-addr2').value,
+        city: document.getElementById('a-city').value,
+        state: document.getElementById('a-state').value,
+        zip: document.getElementById('a-zip').value,
+      };
+      window.coreApp.save();
+      closeAddressDrawer();
+      renderRows();
+    });
+
+    document.getElementById('select-all').addEventListener('change', (e) => {
+      selectedIds.clear();
+      if (e.target.checked) state.members.forEach((m) => selectedIds.add(m.uuid));
+      renderRows();
+    });
+
+    document.getElementById('remove-selected').addEventListener('click', () => {
+      window.coreApp.removeMembers([...selectedIds]);
+      selectedIds.clear();
+      renderRows();
+    });
+
+    window.addEventListener('pd:members-updated', renderRows);
+
+    document.getElementById('go-back').addEventListener('click', () => {
+      window.location.href = 'core-app-members.html';
+    });
+    document.getElementById('save-continue').addEventListener('click', () => {
+      window.coreApp.markStepDone('job-details');
+      window.location.href = 'core-app-pay.html';
+    });
+
+    renderRows();
+  </script>
+  <script src="member-drawer.js"></script>
+</body>
+</html>

@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex" />
+  <title>EPLI — Workers' Comp</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="core-app.css" />
+  <style>
+    .file-upload {
+      padding: 20px;
+      border: 2px dashed #BFDBFE;
+      border-radius: 8px;
+      text-align: center;
+      background: white;
+    }
+    .file-upload input[type="file"] { display: none; }
+    .file-upload label {
+      color: #1A56DB; font-weight: 600; text-decoration: underline; cursor: pointer; font-size: 14px;
+    }
+    .file-upload .hint { font-size: 12px; color: #6B7280; margin-top: 6px; }
+
+    .option-radio {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .option-radio label {
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px 14px;
+      border: 1.5px solid #D1D5DB;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      color: #111827;
+    }
+    .option-radio label.checked { border-color: #1A56DB; background: #EFF6FF; }
+    .option-radio input { accent-color: #1A56DB; }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="breadcrumbs">
+      <a href="enrollment-hub.html">Home</a><span>/</span>EPLI
+    </div>
+    <h1 class="page-title">Tell us a little bit about your company</h1>
+
+    <ol class="stepper" id="stepper"></ol>
+
+    <form class="form-wrap" id="form" onsubmit="return false">
+      <div class="section">
+        <h2 class="section-heading">Employment Practice Liability Insurance (EPLI)</h2>
+        <p class="section-description">
+          EPLI provides coverage for claims made by employees, former employees, or potential employees for discrimination, wrongful termination, harassment, and certain other employment-related issues.
+        </p>
+
+        <div class="field">
+          <label class="field-label">Does your company have an EPLI policy?</label>
+          <div class="radio-buttons" data-group="hasPolicy">
+            <label><input type="radio" name="hasPolicy" value="true" /><span>Yes</span></label>
+            <label><input type="radio" name="hasPolicy" value="false" /><span>No</span></label>
+          </div>
+        </div>
+
+        <div id="has-policy-details" hidden>
+          <div class="field">
+            <label class="field-label">Please attach a valid EPLI certificate of insurance</label>
+            <div class="file-upload">
+              <input id="epli-file" type="file" accept=".pdf" />
+              <label for="epli-file">Click to upload a file</label>
+              <div class="hint">PDF only</div>
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="field-label">EPLI Loss Run Report <span class="field-optional">Optional</span></label>
+            <div class="field-hint">This document contains information about your existing EPLI policy, including any claims (losses) you may have had during the past five years. You can obtain this by contacting your current EPLI carrier.</div>
+            <div class="file-upload">
+              <input id="epli-loss-file" type="file" accept=".pdf" />
+              <label for="epli-loss-file">Click to upload a file</label>
+              <div class="hint">PDF only</div>
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="field-label">Don't have an EPLI Loss Run Report? Let us know why.</label>
+            <div class="option-radio" data-group="noEpliLossRunsReportReason">
+              <label><input type="radio" name="noEpliLossRunsReportReason" value="no_prior_employees" /><span>Our company didn't have previous W-2 employees.</span></label>
+              <label><input type="radio" name="noEpliLossRunsReportReason" value="waiting_on_carrier" /><span>We'll send it when our current carrier provides it.</span></label>
+              <label><input type="radio" name="noEpliLossRunsReportReason" value="Other" /><span>Other</span></label>
+            </div>
+          </div>
+          <div class="field" id="other-reason" hidden>
+            <label class="field-label" for="noEpliLossRunsReportOtherReason">Please explain</label>
+            <textarea id="noEpliLossRunsReportOtherReason" rows="3"></textarea>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="field-label">Has your company or any of its subsidiaries received any allegations or claims under any policy that provides EPLI-type coverage (e.g., EPLI, commercial general liability, or any other employment practices policy) in the past 3 years (either your own policy, or a policy provided by your current PEO, if applicable)?</label>
+          <div class="radio-buttons" data-group="receivedEpliAllegations">
+            <label><input type="radio" name="receivedEpliAllegations" value="true" /><span>Yes</span></label>
+            <label><input type="radio" name="receivedEpliAllegations" value="false" /><span>No</span></label>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="field-label">Regardless of whether covered by EPLI-type coverage, has your company or any of its subsidiaries been sued by a current or former employee, independent contractor, or officer in the last 12 months?</label>
+          <div class="radio-buttons" data-group="beenSuedFormerEmp">
+            <label><input type="radio" name="beenSuedFormerEmp" value="true" /><span>Yes</span></label>
+            <label><input type="radio" name="beenSuedFormerEmp" value="false" /><span>No</span></label>
+          </div>
+        </div>
+        <div class="field" id="claim-details-field" hidden>
+          <label class="field-label" for="claimDetails">Please explain why and include any losses paid.</label>
+          <textarea id="claimDetails" rows="3"></textarea>
+        </div>
+
+        <div class="field">
+          <label class="field-label">Does your company have 25+ US-based employees?</label>
+          <div class="radio-buttons" data-group="overTwentyFiveEe">
+            <label><input type="radio" name="overTwentyFiveEe" value="true" /><span>Yes</span></label>
+            <label><input type="radio" name="overTwentyFiveEe" value="false" /><span>No</span></label>
+          </div>
+        </div>
+        <div class="field" id="severance-field" hidden>
+          <label class="field-label">Will severance packages be offered to employees who are laid off in exchange for a release not to sue?</label>
+          <div class="radio-buttons" data-group="offeredSeverancePackages">
+            <label><input type="radio" name="offeredSeverancePackages" value="true" /><span>Yes</span></label>
+            <label><input type="radio" name="offeredSeverancePackages" value="false" /><span>No</span></label>
+          </div>
+        </div>
+      </div>
+    </form>
+
+    <div class="action-footer">
+      <div class="action-footer-inner">
+        <button class="btn-secondary" id="back-btn">Back</button>
+        <button class="btn-primary" id="continue-btn">Save &amp; continue</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="reset.js"></script>
+  <script src="wc-app.js"></script>
+  <script src="wc-stepper.js"></script>
+  <script>
+    wcRenderStepper(5);
+    const state = window.wcApp.get();
+    const ep = state.epli;
+
+    function wireRadio(group, onChange) {
+      document.querySelectorAll(`[data-group="${group}"] label`).forEach((label) => {
+        const input = label.querySelector('input');
+        input.addEventListener('change', () => {
+          document.querySelectorAll(`[data-group="${group}"] label`).forEach((l) => l.classList.remove('checked'));
+          label.classList.add('checked');
+          if (onChange) onChange(input.value);
+        });
+      });
+    }
+    function setRadio(group, val) {
+      if (val == null) return;
+      document.querySelectorAll(`[data-group="${group}"] label`).forEach((l) => {
+        const input = l.querySelector('input');
+        if (String(input.value) === String(val)) { input.checked = true; l.classList.add('checked'); }
+      });
+    }
+
+    wireRadio('hasPolicy', (v) => { document.getElementById('has-policy-details').hidden = v !== 'true'; });
+    wireRadio('noEpliLossRunsReportReason', (v) => {
+      document.getElementById('other-reason').hidden = v !== 'Other';
+    });
+    wireRadio('receivedEpliAllegations');
+    wireRadio('beenSuedFormerEmp', (v) => { document.getElementById('claim-details-field').hidden = v !== 'true'; });
+    wireRadio('overTwentyFiveEe', (v) => { document.getElementById('severance-field').hidden = v !== 'true'; });
+    wireRadio('offeredSeverancePackages');
+
+    setRadio('hasPolicy', ep.hasPolicy);
+    setRadio('noEpliLossRunsReportReason', ep.noEpliLossRunsReportReason);
+    setRadio('receivedEpliAllegations', ep.receivedEpliAllegations);
+    setRadio('beenSuedFormerEmp', ep.beenSuedFormerEmp);
+    setRadio('overTwentyFiveEe', ep.overTwentyFiveEe);
+    setRadio('offeredSeverancePackages', ep.offeredSeverancePackages);
+    document.getElementById('noEpliLossRunsReportOtherReason').value = ep.noEpliLossRunsReportOtherReason || '';
+    document.getElementById('claimDetails').value = ep.claimDetails || '';
+    if (ep.hasPolicy === true) document.getElementById('has-policy-details').hidden = false;
+    if (ep.noEpliLossRunsReportReason === 'Other') document.getElementById('other-reason').hidden = false;
+    if (ep.beenSuedFormerEmp === true) document.getElementById('claim-details-field').hidden = false;
+    if (ep.overTwentyFiveEe === true) document.getElementById('severance-field').hidden = false;
+
+    document.getElementById('back-btn').addEventListener('click', () => {
+      window.location.href = 'wc-attach-documents.html';
+    });
+    document.getElementById('continue-btn').addEventListener('click', () => {
+      function readBool(g) {
+        const v = document.querySelector(`input[name="${g}"]:checked`)?.value;
+        return v == null ? null : v === 'true';
+      }
+      ep.hasPolicy = readBool('hasPolicy');
+      ep.noEpliLossRunsReportReason = document.querySelector('input[name="noEpliLossRunsReportReason"]:checked')?.value || '';
+      ep.noEpliLossRunsReportOtherReason = document.getElementById('noEpliLossRunsReportOtherReason').value;
+      ep.receivedEpliAllegations = readBool('receivedEpliAllegations');
+      ep.beenSuedFormerEmp = readBool('beenSuedFormerEmp');
+      ep.claimDetails = document.getElementById('claimDetails').value;
+      ep.overTwentyFiveEe = readBool('overTwentyFiveEe');
+      ep.offeredSeverancePackages = readBool('offeredSeverancePackages');
+      window.wcApp.save();
+      window.wcApp.markStepDone('epli');
+      window.location.href = 'wc-review.html';
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex" />
+  <title>Review &amp; submit — Workers' Comp</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="core-app.css" />
+  <style>
+    .review-section {
+      background: white;
+      border: 1px solid #E5E7EB;
+      border-radius: 10px;
+      padding: 20px 24px;
+      margin-bottom: 16px;
+    }
+    .review-section h3 {
+      font-size: 16px;
+      font-weight: 700;
+      color: #111827;
+      margin: 0 0 12px;
+    }
+    .review-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 10px 0;
+      border-bottom: 1px solid #F3F4F6;
+      font-size: 14px;
+    }
+    .review-row:last-child { border-bottom: none; }
+    .review-key { color: #6B7280; font-weight: 500; flex-shrink: 0; }
+    .review-val { color: #111827; text-align: right; }
+    .review-val.placeholder { color: #9CA3AF; font-style: italic; }
+
+    .confirm-box {
+      display: flex;
+      gap: 10px;
+      padding: 14px 16px;
+      border: 1.5px solid #D1D5DB;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-bottom: 14px;
+      align-items: flex-start;
+    }
+    .confirm-box.checked { border-color: #1A56DB; background: #EFF6FF; }
+    .confirm-box input { accent-color: #1A56DB; margin-top: 3px; }
+    .confirm-box span { font-size: 14px; color: #111827; line-height: 1.55; }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="breadcrumbs">
+      <a href="enrollment-hub.html">Home</a><span>/</span>Review and submit
+    </div>
+    <h1 class="page-title">Tell us a little bit about your company</h1>
+
+    <ol class="stepper" id="stepper"></ol>
+
+    <div class="form-wrap">
+      <h2 class="section-heading">Review &amp; submit</h2>
+      <p class="section-description">If everything looks good, go ahead and submit your application.</p>
+
+      <div id="review-content"></div>
+
+      <label class="confirm-box" id="confirm-box">
+        <input type="checkbox" id="confirm-check" />
+        <span>I am an authorized representative of the business listed above and hereby attest that this information is accurate and complete.</span>
+      </label>
+    </div>
+
+    <div class="action-footer">
+      <div class="action-footer-inner">
+        <button class="btn-secondary" id="back-btn">Back</button>
+        <button class="btn-primary" id="submit-btn">Submit</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="reset.js"></script>
+  <script src="wc-app.js"></script>
+  <script src="core-app.js"></script>
+  <script src="wc-stepper.js"></script>
+  <script>
+    wcRenderStepper(6);
+    const state = window.wcApp.get();
+    const coreState = window.coreApp.get();
+
+    function yn(v) { return v === true ? 'Yes' : v === false ? 'No' : null; }
+    function txt(v) { return (v != null && v !== '') ? String(v) : null; }
+
+    function row(key, val) {
+      const placeholder = val == null;
+      return `<div class="review-row">
+        <span class="review-key">${key}</span>
+        <span class="review-val${placeholder ? ' placeholder' : ''}">${placeholder ? 'Not provided' : val}</span>
+      </div>`;
+    }
+
+    function section(title, rows) {
+      return `<div class="review-section"><h3>${title}</h3>${rows.join('')}</div>`;
+    }
+
+    const bd = state.business_details;
+    const ay = state.about_your_team;
+    const ab = state.about_your_business;
+    const ba = state.business_attributes;
+    const ad = state.attach_documents;
+    const ep = state.epli;
+
+    const content = [
+      section('Business details', [
+        row('EIN', txt(bd.ein)),
+        row('Non-profit?', yn(bd.is_non_profit)),
+        row('Hours of operation', txt(bd.hours_of_operation)),
+        row('Majority ownership controls another entity?', yn(bd.owner_half_stake_other)),
+        bd.owner_half_stake_other ? row('Related entity name', txt(bd.related_entity.legal_name)) : '',
+        bd.owner_half_stake_other ? row('Related entity has W-2 employees?', yn(bd.related_entity.has_w2_employees)) : '',
+      ]),
+      section('About your team', [
+        row('Employees who travel', yn(ay.travel)),
+        row('Use tools or hardware', yn(ay.hardware)),
+        row('Perform physical labor', yn(ay.employeesPhysicalLabor)),
+        row('Works with 1099 contractors', yn(ay.hasContractors)),
+        row('Seasonal/temp workers', txt(ay.numberTemp)),
+        row('Work near water (bridges/docks)', yn(ay.boatsBridges)),
+        row('Work underground', yn(ay.employeesWorkUnderground)),
+        row('Work on ladders', yn(ay.employeesWorkOnLadders)),
+        row('Perform heavy lifting', yn(ay.employeePerformHeavyLifting)),
+        row('Make deliveries', yn(ay.deliveries)),
+        row('Has a physical disability', yn(ay.physicalDisability)),
+        row('Anyone under 18 or over 70', yn(ay.underageOrSenior)),
+      ]),
+      section('About your business', [
+        row('Business description', txt(ab.business_description)),
+        row('Websites', ab.websites && ab.websites.filter(Boolean).length ? ab.websites.filter(Boolean).join(', ') : null),
+        row('Day-to-day operations', txt(ab.daily_operations)),
+        row('Union workers', yn(ab.has_union_workers)),
+      ]),
+      section('Business attributes', [
+        row('Prior workers\' comp carriers', yn(ba.has_prior_carriers)),
+        row('Claims in past 5 years', yn(ba.has_had_workers_comp_policy)),
+        row('Policy cancelled', yn(ba.been_cancelled)),
+        row('Past due premiums', yn(ba.has_past_due_premiums)),
+        row('Declined for workers\' comp', yn(ba.been_declined)),
+        row('Sponsors athletic teams', yn(ba.sponsors_sports_teams)),
+        row('Tax liens or bankruptcy (5 yrs)', yn(ba.has_tax_lien_bankruptcy)),
+        row('Offers health insurance', yn(ba.offer_health_insurance)),
+        row('Owns aircraft/watercraft', yn(ba.own_aircraft_watercraft)),
+        row('Uses 3rd party vendors', yn(ba.use_3rd_party_vendors)),
+        row('Has volunteers', yn(ba.has_volunteers)),
+        row('Works with hazardous materials', yn(ba.works_with_hazardous_materials)),
+        row('Has written safety program', yn(ba.has_written_safety_program)),
+      ]),
+      section('Attach documents', [
+        row('Loss run report reason', txt(ad.no_loss_run_report_reason)),
+        ad.no_loss_run_report_reason === 'Other' ? row('Other reason', txt(ad.no_loss_run_report_other_reason)) : '',
+      ]),
+      section('EPLI', [
+        row('Has EPLI policy', yn(ep.hasPolicy)),
+        row('EPLI allegations in past 3 yrs', yn(ep.receivedEpliAllegations)),
+        row('Sued by employee in last 12 mo', yn(ep.beenSuedFormerEmp)),
+        row('25+ US-based employees', yn(ep.overTwentyFiveEe)),
+        ep.overTwentyFiveEe === true ? row('Offers severance packages', yn(ep.offeredSeverancePackages)) : '',
+      ]),
+    ].join('');
+
+    document.getElementById('review-content').innerHTML = content;
+
+    const box = document.getElementById('confirm-box');
+    const check = document.getElementById('confirm-check');
+    check.addEventListener('change', () => {
+      box.classList.toggle('checked', check.checked);
+    });
+
+    document.getElementById('back-btn').addEventListener('click', () => {
+      window.location.href = 'wc-epli.html';
+    });
+    document.getElementById('submit-btn').addEventListener('click', () => {
+      state.review.confirmed = check.checked;
+      window.wcApp.save();
+      window.wcApp.markStepDone('review');
+      // Mark workers-comp as completed on the core-app stepsCompleted list so
+      // the hub can move the task to 'done'.
+      window.coreApp.markStepDone('workers-comp');
+      window.location.href = 'enrollment-hub.html';
+    });
+  </script>
+</body>
+</html>

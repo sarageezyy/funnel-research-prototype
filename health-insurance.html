@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex" />
+  <title>Apply for a health insurance quote — Acme HR</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="core-app.css" />
+</head>
+<body>
+  <div class="page">
+    <div class="breadcrumbs">
+      <a href="enrollment-hub.html">Home</a><span>/</span>Apply for a health insurance quote
+    </div>
+    <h1 class="page-title">Apply for a health insurance quote</h1>
+
+    <div class="form-wrap">
+      <div class="field">
+        <label class="field-label" id="had-employees-label">Did you have employees last year?</label>
+        <div class="radio-buttons" data-group="had_employees_last_calendar_year">
+          <label><input type="radio" name="had_employees_last_calendar_year" value="true" /><span>Yes</span></label>
+          <label><input type="radio" name="had_employees_last_calendar_year" value="false" /><span>No</span></label>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="field-label" id="ran-payroll-label">Did you run payroll in all 4 quarters of last year?</label>
+        <div class="radio-buttons" data-group="ran_payroll_in_all_quarters_of_last_calendar_year">
+          <label><input type="radio" name="ran_payroll_in_all_quarters_of_last_calendar_year" value="true" /><span>Yes</span></label>
+          <label><input type="radio" name="ran_payroll_in_all_quarters_of_last_calendar_year" value="false" /><span>No</span></label>
+        </div>
+      </div>
+    </div>
+
+    <div class="action-footer">
+      <div class="action-footer-inner">
+        <button class="btn-secondary" id="back-btn">Back</button>
+        <button class="btn-primary" id="continue-btn">Save &amp; continue</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="reset.js"></script>
+  <script src="core-app.js"></script>
+  <script>
+    const coreState = window.coreApp.get();
+    const company = coreState.company;
+    const hi = company.health_insurance_information;
+    const priorYear = new Date().getFullYear() - 1;
+
+    document.getElementById('had-employees-label').textContent = `Did you have employees in ${priorYear}?`;
+    document.getElementById('ran-payroll-label').textContent = `Did you run payroll in all 4 quarters of ${priorYear}?`;
+
+    function wireRadio(group) {
+      document.querySelectorAll(`[data-group="${group}"] label`).forEach((label) => {
+        const input = label.querySelector('input');
+        input.addEventListener('change', () => {
+          document.querySelectorAll(`[data-group="${group}"] label`).forEach((l) => l.classList.remove('checked'));
+          label.classList.add('checked');
+        });
+      });
+    }
+    function setRadio(group, val) {
+      if (val == null) return;
+      document.querySelectorAll(`[data-group="${group}"] label`).forEach((l) => {
+        const input = l.querySelector('input');
+        if (String(input.value) === String(val)) { input.checked = true; l.classList.add('checked'); }
+      });
+    }
+    wireRadio('had_employees_last_calendar_year');
+    wireRadio('ran_payroll_in_all_quarters_of_last_calendar_year');
+
+    setRadio('had_employees_last_calendar_year', hi.had_employees_last_calendar_year);
+    setRadio('ran_payroll_in_all_quarters_of_last_calendar_year', hi.ran_payroll_in_all_quarters_of_last_calendar_year);
+
+    document.getElementById('back-btn').addEventListener('click', () => {
+      window.location.href = 'enrollment-hub.html';
+    });
+    document.getElementById('continue-btn').addEventListener('click', () => {
+      function readBool(g) {
+        const v = document.querySelector(`input[name="${g}"]:checked`)?.value;
+        return v == null ? null : v === 'true';
+      }
+      hi.had_employees_last_calendar_year = readBool('had_employees_last_calendar_year');
+      hi.ran_payroll_in_all_quarters_of_last_calendar_year = readBool('ran_payroll_in_all_quarters_of_last_calendar_year');
+      window.coreApp.save();
+      window.coreApp.markStepDone('health-insurance');
+      window.location.href = 'enrollment-hub.html';
+    });
+  </script>
+</body>
+</html>

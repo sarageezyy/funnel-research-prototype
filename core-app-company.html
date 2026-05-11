@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex" />
+  <title>Your company and team — Acme HR</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="core-app.css" />
+</head>
+<body>
+  <div class="page">
+    <div class="breadcrumbs">
+      <a href="enrollment-hub.html">Home</a><span>/</span>About your company
+    </div>
+    <h1 class="page-title">Your company and team</h1>
+
+    <ol class="stepper">
+      <li class="step current"><span class="step-num">1</span>About your company</li>
+      <li class="step"><span class="step-num">2</span>About your team</li>
+      <li class="step"><span class="step-num">3</span>Review job details</li>
+      <li class="step"><span class="step-num">4</span>Review pay info</li>
+      <li class="step" id="step-hi"><span class="step-num">5</span>Health insurance info</li>
+    </ol>
+
+    <form class="form-wrap" id="company-form" onsubmit="return false">
+
+      <div class="section">
+        <h2 class="section-heading">Basics</h2>
+        <p class="section-description">We started off with the info you've already given us.</p>
+
+        <div class="field">
+          <label class="field-label" for="company_name">Legal entity name</label>
+          <div class="field-hint">As shown on your Articles of Incorporation or other formation docs</div>
+          <input id="company_name" type="text" />
+        </div>
+
+        <div class="field">
+          <label class="field-label" for="dba">Doing business as (DBA) <span class="field-optional">Optional</span></label>
+          <input id="dba" type="text" />
+        </div>
+
+        <div class="field">
+          <label class="field-label" for="entityType">Entity type</label>
+          <select id="entityType">
+            <option value="" disabled selected></option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label class="field-label" for="year_founded">What year was your company founded?</label>
+          <select id="year_founded">
+            <option value="" disabled selected></option>
+          </select>
+        </div>
+
+        <div class="field" id="filed-taxes-field" hidden>
+          <label class="field-label" id="filed-taxes-label">Did your company file taxes?</label>
+          <div class="radio-buttons" data-group="filed_taxes">
+            <label><input type="radio" name="filed_taxes" value="true" /><span>Yes</span></label>
+            <label><input type="radio" name="filed_taxes" value="false" /><span>No</span></label>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="field-label" for="industry">Industry</label>
+          <div class="field-hint">Choose the industry that best describes you. It's okay if it isn't an exact match</div>
+          <select id="industry">
+            <option value="" disabled selected></option>
+          </select>
+        </div>
+
+        <div class="field" id="naics4-field" hidden>
+          <label class="field-label" for="industryNaics4">What sector of that industry does your company operate in?</label>
+          <select id="industryNaics4">
+            <option value="" disabled selected></option>
+          </select>
+        </div>
+
+        <div class="field" id="naics6-field" hidden>
+          <label class="field-label" for="industryNaics6">What specific type of work does your company do?</label>
+          <select id="industryNaics6">
+            <option value="" disabled selected></option>
+          </select>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2 class="section-heading">Office locations</h2>
+        <p class="section-description">Add all your locations around the world</p>
+
+        <div class="office-list" id="office-list"></div>
+        <button type="button" class="btn-add" id="add-office-btn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+          Add office
+        </button>
+      </div>
+
+      <div class="section">
+        <h2 class="section-heading">Health insurance</h2>
+
+        <div class="field">
+          <label class="field-label">Does your company currently offer health insurance?</label>
+          <div class="radio-buttons" data-group="currentlyOffer">
+            <label><input type="radio" name="currentlyOffer" value="true" /><span>Yes</span></label>
+            <label><input type="radio" name="currentlyOffer" value="false" /><span>No</span></label>
+          </div>
+        </div>
+
+        <div class="field" id="controlled-group-field" hidden>
+          <label class="field-label">Are you part of a controlled group?</label>
+          <div class="field-hint"><a class="learn-more-link" href="#">Learn about controlled groups</a></div>
+          <div class="radio-buttons" data-group="controlledGroup">
+            <label><input type="radio" name="controlledGroup" value="true" /><span>Yes</span></label>
+            <label><input type="radio" name="controlledGroup" value="false" /><span>No</span></label>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="field-label">Are you interested in offering health insurance from Acme HR?</label>
+          <div class="radio-buttons" data-group="interestedHI">
+            <label><input type="radio" name="interestedHI" value="true" /><span>Yes</span></label>
+            <label><input type="radio" name="interestedHI" value="false" /><span>No</span></label>
+          </div>
+        </div>
+
+        <div class="field" id="coverage-date-field" hidden>
+          <label class="field-label" for="startingCoverageDate">When will you need your health insurance coverage to begin?</label>
+          <div class="field-hint">Coverage begins on the 1st of the month.</div>
+          <select id="startingCoverageDate">
+            <option value="" disabled selected></option>
+          </select>
+        </div>
+
+        <div class="notice gray" id="not-interested-notice" hidden style="margin-top: 10px;">
+          <strong>Sounds good.</strong> Whenever you're ready, our plans come with some surprisingly valuable perks that employees and many business owners end up loving.
+        </div>
+
+        <div id="guided-experience-block" hidden style="margin-top: 24px;">
+          <h3 class="section-heading" style="font-size: 16px;">Get a guided experience</h3>
+          <p class="section-description" style="font-size: 13px;">From what we know about your company so far, we think you'll have a better experience with some help from our team.</p>
+          <div class="field">
+            <label class="field-label">Want to talk to an expert?</label>
+            <div class="field-hint">You'll be directed to schedule a call with a member of our team.</div>
+            <div class="radio-buttons" data-group="wantsManagedSales">
+              <label><input type="radio" name="wantsManagedSales" value="true" /><span>Yes</span></label>
+              <label><input type="radio" name="wantsManagedSales" value="false" /><span>No</span></label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+
+    <div class="action-footer">
+      <div class="action-footer-inner">
+        <button class="btn-primary" id="save-continue">Save &amp; continue</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Office drawer -->
+  <div class="drawer-backdrop" id="office-backdrop"></div>
+  <aside class="drawer" id="office-drawer" aria-hidden="true">
+    <div class="drawer-header">
+      <h3 id="drawer-title">Add office</h3>
+      <button class="drawer-close" id="drawer-close" aria-label="Close">×</button>
+    </div>
+    <div class="drawer-body">
+      <form id="office-form" onsubmit="return false">
+        <div class="field">
+          <label class="field-label" for="o-name">Location name</label>
+          <input id="o-name" type="text" placeholder="e.g. HQ, Downtown office" />
+        </div>
+        <div class="field">
+          <label class="field-label">
+            <input type="checkbox" id="o-is-hq" /> This is our primary business address
+          </label>
+        </div>
+        <div class="field">
+          <label class="field-label" for="o-addr1">Address line 1</label>
+          <input id="o-addr1" type="text" />
+        </div>
+        <div class="field">
+          <label class="field-label" for="o-addr2">Address line 2 <span class="field-optional">Optional</span></label>
+          <input id="o-addr2" type="text" />
+        </div>
+        <div class="row">
+          <div class="field">
+            <label class="field-label" for="o-city">City</label>
+            <input id="o-city" type="text" />
+          </div>
+          <div class="field">
+            <label class="field-label" for="o-state">State</label>
+            <select id="o-state"><option value="" disabled selected></option></select>
+          </div>
+          <div class="field">
+            <label class="field-label" for="o-zip">Zip</label>
+            <input id="o-zip" type="text" />
+          </div>
+        </div>
+      </form>
+    </div>
+    <div class="drawer-footer">
+      <button class="btn-secondary" id="drawer-cancel">Cancel</button>
+      <button class="btn-primary" id="drawer-save">Save office</button>
+    </div>
+  </aside>
+
+  <script src="reset.js"></script>
+  <script src="store.js"></script>
+  <script src="core-app.js"></script>
+  <script>
+    const state = window.coreApp.get();
+    const ref = window.CORE_APP_REF;
+
+    // ---- Populate selects
+    function fillSelect(selectEl, items, itemToOption, selectedVal) {
+      items.forEach((item) => {
+        const opt = document.createElement('option');
+        const o = itemToOption(item);
+        opt.value = o.value;
+        opt.textContent = o.label;
+        if (selectedVal != null && String(selectedVal) === String(o.value)) opt.selected = true;
+        selectEl.appendChild(opt);
+      });
+    }
+    fillSelect(document.getElementById('entityType'), ref.entityTypes, (t) => ({ value: t, label: t }), state.company.entityType);
+    fillSelect(document.getElementById('year_founded'), ref.years(), (y) => ({ value: y, label: y }), state.company.year_founded);
+    fillSelect(document.getElementById('industry'), ref.industriesNaics2, (i) => ({ value: i, label: i }), state.company.industry);
+    fillSelect(document.getElementById('o-state'), ref.states, (s) => ({ value: s, label: s }), null);
+    fillSelect(document.getElementById('startingCoverageDate'), ref.coverageStartMonths(), (m) => m, state.company.health_insurance_information.startingCoverageDate);
+
+    // ---- Restore basic fields
+    document.getElementById('company_name').value = state.company.company_name || '';
+    document.getElementById('dba').value = state.company.dba || '';
+
+    function updateFiledTaxesVisibility() {
+      const year = document.getElementById('year_founded').value;
+      const currentYear = new Date().getFullYear();
+      const field = document.getElementById('filed-taxes-field');
+      if (year && Number(year) !== currentYear) {
+        field.hidden = false;
+        document.getElementById('filed-taxes-label').textContent =
+          `Did your company file taxes in ${currentYear - 1}?`;
+      } else {
+        field.hidden = true;
+      }
+    }
+    document.getElementById('year_founded').addEventListener('change', updateFiledTaxesVisibility);
+    updateFiledTaxesVisibility();
+
+    // ---- NAICS cascade
+    document.getElementById('industry').addEventListener('change', (e) => {
+      const naics4Field = document.getElementById('naics4-field');
+      const naics4 = document.getElementById('industryNaics4');
+      naics4.innerHTML = '<option value="" disabled selected></option>';
+      const opts = ref.industriesNaics4ByParent[e.target.value] || ['General'];
+      fillSelect(naics4, opts, (o) => ({ value: o, label: o }));
+      naics4Field.hidden = false;
+      document.getElementById('naics6-field').hidden = true;
+    });
+    document.getElementById('industryNaics4').addEventListener('change', (e) => {
+      const naics6Field = document.getElementById('naics6-field');
+      const naics6 = document.getElementById('industryNaics6');
+      naics6.innerHTML = '<option value="" disabled selected></option>';
+      const opts = ref.industriesNaics6ByParent[e.target.value] || ['General'];
+      fillSelect(naics6, opts, (o) => ({ value: o, label: o }));
+      naics6Field.hidden = false;
+    });
+
+    // ---- On load, cascade NAICS dropdowns if defaults are present
+    if (state.company.industry) {
+      const naics4 = document.getElementById('industryNaics4');
+      const opts4 = ref.industriesNaics4ByParent[state.company.industry] || ['General'];
+      fillSelect(naics4, opts4, (o) => ({ value: o, label: o }), state.company.industryNaics4);
+      document.getElementById('naics4-field').hidden = false;
+    }
+    if (state.company.industryNaics4) {
+      const naics6 = document.getElementById('industryNaics6');
+      const opts6 = ref.industriesNaics6ByParent[state.company.industryNaics4] || ['General'];
+      fillSelect(naics6, opts6, (o) => ({ value: o, label: o }), state.company.industryNaics6);
+      document.getElementById('naics6-field').hidden = false;
+    }
+
+    // ---- Radio-button groups (custom visual)
+    function wireRadioGroup(groupName, onChange) {
+      const labels = document.querySelectorAll(`[data-group="${groupName}"] label`);
+      labels.forEach((label) => {
+        const input = label.querySelector('input');
+        input.addEventListener('change', () => {
+          labels.forEach((l) => l.classList.remove('checked'));
+          label.classList.add('checked');
+          if (onChange) onChange(input.value);
+        });
+      });
+    }
+    function setRadioGroupValue(groupName, val) {
+      if (val == null) return;
+      const labels = document.querySelectorAll(`[data-group="${groupName}"] label`);
+      labels.forEach((label) => {
+        const input = label.querySelector('input');
+        if (String(input.value) === String(val)) {
+          input.checked = true;
+          label.classList.add('checked');
+        }
+      });
+    }
+
+    wireRadioGroup('filed_taxes');
+    wireRadioGroup('currentlyOffer', (val) => {
+      document.getElementById('controlled-group-field').hidden = val !== 'false';
+      updateCoverageVisibility();
+      updateGuidedVisibility();
+    });
+    wireRadioGroup('controlledGroup');
+    wireRadioGroup('interestedHI', (val) => {
+      document.getElementById('not-interested-notice').hidden = val !== 'false';
+      updateCoverageVisibility();
+      updateGuidedVisibility();
+    });
+    wireRadioGroup('wantsManagedSales');
+
+    function updateCoverageVisibility() {
+      const offering = document.querySelector('input[name="currentlyOffer"]:checked')?.value;
+      const interested = document.querySelector('input[name="interestedHI"]:checked')?.value;
+      document.getElementById('coverage-date-field').hidden = !(offering === 'false' && interested === 'true');
+    }
+    function updateGuidedVisibility() {
+      const offering = document.querySelector('input[name="currentlyOffer"]:checked')?.value;
+      const interested = document.querySelector('input[name="interestedHI"]:checked')?.value;
+      document.getElementById('guided-experience-block').hidden = !(offering === 'true' && interested === 'true');
+    }
+
+    // Restore radio-button selections
+    const hi = state.company.health_insurance_information;
+    setRadioGroupValue('filed_taxes', state.company.filed_taxes_last_calendar_year);
+    setRadioGroupValue('currentlyOffer', hi.currentlyOfferHealthInsurance);
+    setRadioGroupValue('controlledGroup', hi.controlledGroup);
+    setRadioGroupValue('interestedHI', hi.isInterestedInJustworksHI);
+    setRadioGroupValue('wantsManagedSales', hi.wantsManagedSales);
+    if (hi.currentlyOfferHealthInsurance === false) document.getElementById('controlled-group-field').hidden = false;
+    updateCoverageVisibility();
+    updateGuidedVisibility();
+
+    // ---- Office drawer
+    const backdrop = document.getElementById('office-backdrop');
+    const drawer = document.getElementById('office-drawer');
+    let editingOfficeId = null;
+
+    function openDrawer(office) {
+      editingOfficeId = office ? office.id : null;
+      document.getElementById('drawer-title').textContent = office ? 'Edit office' : 'Add office';
+      document.getElementById('o-name').value = office?.location_name || '';
+      document.getElementById('o-is-hq').checked = office?.is_hq || state.offices.length === 0;
+      document.getElementById('o-addr1').value = office?.address_1 || '';
+      document.getElementById('o-addr2').value = office?.address_2 || '';
+      document.getElementById('o-city').value = office?.city || '';
+      document.getElementById('o-state').value = office?.state || '';
+      document.getElementById('o-zip').value = office?.zip || '';
+      backdrop.classList.add('open');
+      drawer.classList.add('open');
+    }
+    function closeDrawer() {
+      backdrop.classList.remove('open');
+      drawer.classList.remove('open');
+      editingOfficeId = null;
+    }
+    document.getElementById('add-office-btn').addEventListener('click', () => openDrawer(null));
+    document.getElementById('drawer-close').addEventListener('click', closeDrawer);
+    document.getElementById('drawer-cancel').addEventListener('click', closeDrawer);
+    backdrop.addEventListener('click', closeDrawer);
+
+    document.getElementById('drawer-save').addEventListener('click', () => {
+      const data = {
+        id: editingOfficeId || 'o_' + Math.random().toString(36).slice(2, 8),
+        location_name: document.getElementById('o-name').value,
+        is_hq: document.getElementById('o-is-hq').checked,
+        address_1: document.getElementById('o-addr1').value,
+        address_2: document.getElementById('o-addr2').value,
+        city: document.getElementById('o-city').value,
+        state: document.getElementById('o-state').value,
+        zip: document.getElementById('o-zip').value,
+      };
+      if (data.is_hq) state.offices.forEach((o) => (o.is_hq = false));
+      if (editingOfficeId) {
+        const idx = state.offices.findIndex((o) => o.id === editingOfficeId);
+        if (idx >= 0) state.offices[idx] = data;
+      } else {
+        state.offices.push(data);
+      }
+      window.coreApp.save();
+      renderOffices();
+      closeDrawer();
+    });
+
+    function renderOffices() {
+      const list = document.getElementById('office-list');
+      list.innerHTML = '';
+      state.offices.forEach((office) => {
+        const card = document.createElement('div');
+        card.className = 'office-card';
+        const addr2 = office.address_2 ? `<br />${office.address_2}` : '';
+        card.innerHTML = `
+          <div>
+            ${office.is_hq ? '<span class="badge">Primary business address</span>' : ''}
+            <strong>${office.location_name || '(unnamed)'}</strong>
+            ${office.address_1 || ''}${addr2}
+            <br />
+            ${office.city || ''}${office.city ? ',' : ''} ${office.state || ''} ${office.zip || ''}
+          </div>
+          <div class="actions">
+            <button class="icon-btn" data-edit="${office.id}" aria-label="Edit">✎</button>
+            ${office.is_hq ? '' : `<button class="icon-btn danger" data-delete="${office.id}" aria-label="Delete">🗑</button>`}
+          </div>
+        `;
+        list.appendChild(card);
+      });
+      list.querySelectorAll('[data-edit]').forEach((b) =>
+        b.addEventListener('click', () => {
+          const o = state.offices.find((x) => x.id === b.dataset.edit);
+          if (o) openDrawer(o);
+        })
+      );
+      list.querySelectorAll('[data-delete]').forEach((b) =>
+        b.addEventListener('click', () => {
+          state.offices = state.offices.filter((x) => x.id !== b.dataset.delete);
+          window.coreApp.save();
+          renderOffices();
+        })
+      );
+    }
+    renderOffices();
+
+    // ---- Save & continue
+    document.getElementById('save-continue').addEventListener('click', () => {
+      const c = state.company;
+      c.company_name = document.getElementById('company_name').value;
+      c.dba = document.getElementById('dba').value;
+      c.entityType = document.getElementById('entityType').value;
+      c.year_founded = document.getElementById('year_founded').value;
+      const ft = document.querySelector('input[name="filed_taxes"]:checked')?.value;
+      c.filed_taxes_last_calendar_year = ft == null ? null : ft === 'true';
+      c.industry = document.getElementById('industry').value;
+      c.industryNaics4 = document.getElementById('industryNaics4').value;
+      c.industryNaics6 = document.getElementById('industryNaics6').value;
+
+      const h = c.health_insurance_information;
+      const off = document.querySelector('input[name="currentlyOffer"]:checked')?.value;
+      h.currentlyOfferHealthInsurance = off == null ? null : off === 'true';
+      const cg = document.querySelector('input[name="controlledGroup"]:checked')?.value;
+      h.controlledGroup = cg == null ? null : cg === 'true';
+      const ih = document.querySelector('input[name="interestedHI"]:checked')?.value;
+      h.isInterestedInJustworksHI = ih == null ? null : ih === 'true';
+      h.startingCoverageDate = document.getElementById('startingCoverageDate').value;
+      const wm = document.querySelector('input[name="wantsManagedSales"]:checked')?.value;
+      h.wantsManagedSales = wm == null ? null : wm === 'true';
+
+      window.coreApp.save();
+      window.coreApp.markStepDone('company');
+      window.location.href = 'core-app-members.html';
+    });
+  </script>
+</body>
+</html>

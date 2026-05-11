@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex" />
+  <title>Business attributes — Workers' Comp</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="core-app.css" />
+  <style>
+    .warn-notice {
+      padding: 12px 14px;
+      background: #FEF3C7;
+      border: 1px solid #FDE68A;
+      border-radius: 8px;
+      font-size: 13px;
+      color: #92400E;
+      line-height: 1.55;
+      margin: 8px 0 20px;
+    }
+    .file-upload {
+      padding: 20px;
+      border: 2px dashed #BFDBFE;
+      border-radius: 8px;
+      text-align: center;
+      background: white;
+      margin-bottom: 18px;
+    }
+    .file-upload input[type="file"] { display: none; }
+    .file-upload label {
+      color: #1A56DB; font-weight: 600; text-decoration: underline; cursor: pointer; font-size: 14px;
+    }
+    .file-upload .hint { font-size: 12px; color: #6B7280; margin-top: 6px; }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="breadcrumbs">
+      <a href="enrollment-hub.html">Home</a><span>/</span>Business attributes
+    </div>
+    <h1 class="page-title">Tell us a little bit about your company</h1>
+
+    <ol class="stepper" id="stepper"></ol>
+
+    <form class="form-wrap" id="form" onsubmit="return false">
+      <div class="section">
+        <h2 class="section-heading">Business attributes</h2>
+        <p class="section-description">This section will help us understand more about your business activities.</p>
+
+        <!-- Prior carriers -->
+        <div class="field">
+          <label class="field-label">Do you currently have a workers' compensation policy or have you had one in the past?</label>
+          <div class="radio-buttons" data-group="has_prior_carriers">
+            <label><input type="radio" name="has_prior_carriers" value="true" /><span>Yes</span></label>
+            <label><input type="radio" name="has_prior_carriers" value="false" /><span>No</span></label>
+          </div>
+        </div>
+
+        <div id="prior-carriers-details" hidden>
+          <div class="field">
+            <label class="field-label" for="prior_carriers">Which carriers have you used?</label>
+            <textarea id="prior_carriers" rows="3"></textarea>
+          </div>
+          <div class="field">
+            <label class="field-label">Do you currently or have you in the past 5 years had any claims against your workers' compensation insurance?</label>
+            <div class="radio-buttons" data-group="has_had_workers_comp_policy">
+              <label><input type="radio" name="has_had_workers_comp_policy" value="true" /><span>Yes</span></label>
+              <label><input type="radio" name="has_had_workers_comp_policy" value="false" /><span>No</span></label>
+            </div>
+            <div class="warn-notice" id="no-claims-notice" hidden>
+              By selecting "No" you attest that you are not aware of any workers' compensation claims in the last 5 years.
+            </div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="field-label">Have any of your policies ever been canceled?</label>
+          <div class="radio-buttons" data-group="been_cancelled">
+            <label><input type="radio" name="been_cancelled" value="true" /><span>Yes</span></label>
+            <label><input type="radio" name="been_cancelled" value="false" /><span>No</span></label>
+          </div>
+        </div>
+        <div class="field" id="cancelled-reason" hidden>
+          <label class="field-label" for="policy_cancelled_reason">Please explain</label>
+          <textarea id="policy_cancelled_reason" rows="3"></textarea>
+        </div>
+
+        <div class="field">
+          <label class="field-label">Do you have any past due workers' compensation insurance premiums?</label>
+          <div class="radio-buttons" data-group="has_past_due_premiums">
+            <label><input type="radio" name="has_past_due_premiums" value="true" /><span>Yes</span></label>
+            <label><input type="radio" name="has_past_due_premiums" value="false" /><span>No</span></label>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="field-label">Has your company ever been declined for workers' compensation?</label>
+          <div class="radio-buttons" data-group="been_declined">
+            <label><input type="radio" name="been_declined" value="true" /><span>Yes</span></label>
+            <label><input type="radio" name="been_declined" value="false" /><span>No</span></label>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="field-label">Do you sponsor employee athletic teams?</label>
+          <div class="radio-buttons" data-group="sponsors_sports_teams">
+            <label><input type="radio" name="sponsors_sports_teams" value="true" /><span>Yes</span></label>
+            <label><input type="radio" name="sponsors_sports_teams" value="false" /><span>No</span></label>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="field-label">Have you had tax liens or bankruptcy within the last 5 years?</label>
+          <div class="radio-buttons" data-group="has_tax_lien_bankruptcy">
+            <label><input type="radio" name="has_tax_lien_bankruptcy" value="true" /><span>Yes</span></label>
+            <label><input type="radio" name="has_tax_lien_bankruptcy" value="false" /><span>No</span></label>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="field-label">Do you offer your employees health insurance?</label>
+          <div class="radio-buttons" data-group="offer_health_insurance">
+            <label><input type="radio" name="offer_health_insurance" value="true" /><span>Yes</span></label>
+            <label><input type="radio" name="offer_health_insurance" value="false" /><span>No</span></label>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="field-label">Do you own, operate, or lease aircraft/watercraft?</label>
+          <div class="radio-buttons" data-group="own_aircraft_watercraft">
+            <label><input type="radio" name="own_aircraft_watercraft" value="true" /><span>Yes</span></label>
+            <label><input type="radio" name="own_aircraft_watercraft" value="false" /><span>No</span></label>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="field-label">Do you use 3rd party vendors/manufacturers?</label>
+          <div class="radio-buttons" data-group="use_3rd_party_vendors">
+            <label><input type="radio" name="use_3rd_party_vendors" value="true" /><span>Yes</span></label>
+            <label><input type="radio" name="use_3rd_party_vendors" value="false" /><span>No</span></label>
+          </div>
+        </div>
+        <div id="third-party-details" hidden>
+          <div class="field">
+            <label class="field-label" for="third_party_work_details">What kind of work do they do for you?</label>
+            <div class="field-hint">No need to include 1099 individual independent contractors</div>
+            <textarea id="third_party_work_details" rows="3"></textarea>
+          </div>
+          <div class="field">
+            <label class="field-label" for="third_party_work_location">Where are they located?</label>
+            <textarea id="third_party_work_location" rows="2"></textarea>
+          </div>
+          <div class="field">
+            <label class="field-label" for="third_party_business_arrangements">Describe the business arrangements you have with them.</label>
+            <textarea id="third_party_business_arrangements" rows="3"></textarea>
+          </div>
+          <div class="field">
+            <label class="field-label">Do employees visit any third party vendors or manufacturers?</label>
+            <div class="radio-buttons" data-group="third_party_visit_details">
+              <label><input type="radio" name="third_party_visit_details" value="Yes" /><span>Yes</span></label>
+              <label><input type="radio" name="third_party_visit_details" value="No" /><span>No</span></label>
+            </div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="field-label">Do you have volunteers who work for your company?</label>
+          <div class="radio-buttons" data-group="has_volunteers">
+            <label><input type="radio" name="has_volunteers" value="true" /><span>Yes</span></label>
+            <label><input type="radio" name="has_volunteers" value="false" /><span>No</span></label>
+          </div>
+        </div>
+        <div id="volunteers-details" hidden>
+          <div class="field">
+            <label class="field-label" for="number_volunteers">How many?</label>
+            <input id="number_volunteers" type="number" min="1" />
+          </div>
+          <div class="field">
+            <label class="field-label" for="volunteer_activities">Describe their work</label>
+            <textarea id="volunteer_activities" rows="3"></textarea>
+          </div>
+          <div class="field">
+            <label class="field-label">Do you currently have or plan to have a volunteer accident policy in place?</label>
+            <div class="radio-buttons" data-group="has_volunteer_accident_policy">
+              <label><input type="radio" name="has_volunteer_accident_policy" value="true" /><span>Yes</span></label>
+              <label><input type="radio" name="has_volunteer_accident_policy" value="false" /><span>No</span></label>
+            </div>
+          </div>
+          <div class="field" id="vol-policy-upload" hidden>
+            <label class="field-label">If yes, could you provide a copy of your policy?</label>
+            <div class="field-hint">Accepted file types: PDF</div>
+            <div class="file-upload">
+              <input id="vol-policy-file" type="file" accept=".pdf" />
+              <label for="vol-policy-file">Click to upload a file</label>
+              <div class="hint">PDF only</div>
+            </div>
+          </div>
+          <div class="field">
+            <label class="field-label">Are your volunteers required to travel?</label>
+            <div class="radio-buttons" data-group="volunteer_travel">
+              <label><input type="radio" name="volunteer_travel" value="true" /><span>Yes</span></label>
+              <label><input type="radio" name="volunteer_travel" value="false" /><span>No</span></label>
+            </div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="field-label">Do you work with hazardous materials?</label>
+          <div class="radio-buttons" data-group="works_with_hazardous_materials">
+            <label><input type="radio" name="works_with_hazardous_materials" value="true" /><span>Yes</span></label>
+            <label><input type="radio" name="works_with_hazardous_materials" value="false" /><span>No</span></label>
+          </div>
+        </div>
+        <div class="field" id="hazmat-upload" hidden>
+          <label class="field-label">Attach copies of your Material Safety Data Sheets (MSDS or SDS) if available <span class="field-optional">Optional</span></label>
+          <div class="field-hint">Accepted file types: PDF</div>
+          <div class="file-upload">
+            <input id="hazmat-file" type="file" accept=".pdf" />
+            <label for="hazmat-file">Click to upload a file</label>
+            <div class="hint">PDF only</div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="field-label">Do you have a written safety program in operation?</label>
+          <div class="radio-buttons" data-group="has_written_safety_program">
+            <label><input type="radio" name="has_written_safety_program" value="true" /><span>Yes</span></label>
+            <label><input type="radio" name="has_written_safety_program" value="false" /><span>No</span></label>
+          </div>
+        </div>
+      </div>
+    </form>
+
+    <div class="action-footer">
+      <div class="action-footer-inner">
+        <button class="btn-secondary" id="back-btn">Back</button>
+        <button class="btn-primary" id="continue-btn">Save &amp; continue</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="reset.js"></script>
+  <script src="wc-app.js"></script>
+  <script src="wc-stepper.js"></script>
+  <script>
+    wcRenderStepper(3);
+    const state = window.wcApp.get();
+    const ba = state.business_attributes;
+
+    const BOOL_FIELDS = [
+      'has_prior_carriers', 'has_had_workers_comp_policy', 'been_cancelled',
+      'has_past_due_premiums', 'been_declined', 'sponsors_sports_teams',
+      'has_tax_lien_bankruptcy', 'offer_health_insurance', 'own_aircraft_watercraft',
+      'use_3rd_party_vendors', 'has_volunteers', 'has_volunteer_accident_policy',
+      'volunteer_travel', 'works_with_hazardous_materials', 'has_written_safety_program',
+    ];
+    const TEXT_FIELDS = [
+      'prior_carriers', 'policy_cancelled_reason', 'third_party_work_details',
+      'third_party_work_location', 'third_party_business_arrangements',
+      'number_volunteers', 'volunteer_activities',
+    ];
+
+    function wireRadio(group, onChange) {
+      document.querySelectorAll(`[data-group="${group}"] label`).forEach((label) => {
+        const input = label.querySelector('input');
+        input.addEventListener('change', () => {
+          document.querySelectorAll(`[data-group="${group}"] label`).forEach((l) => l.classList.remove('checked'));
+          label.classList.add('checked');
+          if (onChange) onChange(input.value);
+        });
+      });
+    }
+    function setRadio(group, val) {
+      if (val == null) return;
+      document.querySelectorAll(`[data-group="${group}"] label`).forEach((l) => {
+        const input = l.querySelector('input');
+        if (String(input.value) === String(val)) { input.checked = true; l.classList.add('checked'); }
+      });
+    }
+
+    wireRadio('has_prior_carriers', (v) => {
+      document.getElementById('prior-carriers-details').hidden = v !== 'true';
+    });
+    wireRadio('has_had_workers_comp_policy', (v) => {
+      document.getElementById('no-claims-notice').hidden = v !== 'false';
+    });
+    wireRadio('been_cancelled', (v) => {
+      document.getElementById('cancelled-reason').hidden = v !== 'true';
+    });
+    wireRadio('has_past_due_premiums');
+    wireRadio('been_declined');
+    wireRadio('sponsors_sports_teams');
+    wireRadio('has_tax_lien_bankruptcy');
+    wireRadio('offer_health_insurance');
+    wireRadio('own_aircraft_watercraft');
+    wireRadio('use_3rd_party_vendors', (v) => {
+      document.getElementById('third-party-details').hidden = v !== 'true';
+    });
+    wireRadio('third_party_visit_details');
+    wireRadio('has_volunteers', (v) => {
+      document.getElementById('volunteers-details').hidden = v !== 'true';
+    });
+    wireRadio('has_volunteer_accident_policy', (v) => {
+      document.getElementById('vol-policy-upload').hidden = v !== 'true';
+    });
+    wireRadio('volunteer_travel');
+    wireRadio('works_with_hazardous_materials', (v) => {
+      document.getElementById('hazmat-upload').hidden = v !== 'true';
+    });
+    wireRadio('has_written_safety_program');
+
+    // Restore
+    BOOL_FIELDS.forEach((k) => setRadio(k, ba[k]));
+    setRadio('third_party_visit_details', ba.third_party_visit_details);
+    TEXT_FIELDS.forEach((k) => { if (document.getElementById(k)) document.getElementById(k).value = ba[k] || ''; });
+
+    if (ba.has_prior_carriers === true) document.getElementById('prior-carriers-details').hidden = false;
+    if (ba.has_had_workers_comp_policy === false) document.getElementById('no-claims-notice').hidden = false;
+    if (ba.been_cancelled === true) document.getElementById('cancelled-reason').hidden = false;
+    if (ba.use_3rd_party_vendors === true) document.getElementById('third-party-details').hidden = false;
+    if (ba.has_volunteers === true) document.getElementById('volunteers-details').hidden = false;
+    if (ba.has_volunteer_accident_policy === true) document.getElementById('vol-policy-upload').hidden = false;
+    if (ba.works_with_hazardous_materials === true) document.getElementById('hazmat-upload').hidden = false;
+
+    document.getElementById('back-btn').addEventListener('click', () => {
+      window.location.href = 'wc-about-your-business.html';
+    });
+    document.getElementById('continue-btn').addEventListener('click', () => {
+      function readBool(g) {
+        const v = document.querySelector(`input[name="${g}"]:checked`)?.value;
+        return v == null ? null : v === 'true';
+      }
+      BOOL_FIELDS.forEach((k) => { ba[k] = readBool(k); });
+      ba.third_party_visit_details = document.querySelector('input[name="third_party_visit_details"]:checked')?.value || '';
+      TEXT_FIELDS.forEach((k) => { if (document.getElementById(k)) ba[k] = document.getElementById(k).value; });
+      window.wcApp.save();
+      window.wcApp.markStepDone('business-attributes');
+      window.location.href = 'wc-attach-documents.html';
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex" />
+  <title>Let's get you a detailed quote</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    body { background: #FFFFFF; }
+
+    .hub-page {
+      min-height: 100vh;
+      padding: 56px 24px 80px;
+      display: flex;
+      justify-content: center;
+    }
+    .hub-content {
+      width: 100%;
+      max-width: 635px;
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+    }
+
+    .page-header {
+      font-size: 34px;
+      font-weight: 700;
+      color: #111827;
+      line-height: 1.2;
+      margin: 0;
+      letter-spacing: -0.01em;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .section-head strong { font-size: 18px; color: #111827; font-weight: 700; }
+    .count-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 24px;
+      height: 24px;
+      padding: 0 8px;
+      border-radius: 12px;
+      background: #DBEAFE;
+      color: #1E40AF;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .count-badge.muted { background: #F3F4F6; color: #6B7280; }
+
+    .task-list {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .task-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      padding: 18px 20px;
+      background: #FFFFFF;
+      border: 1px solid #E5E7EB;
+      border-radius: 12px;
+      text-decoration: none;
+      color: inherit;
+      cursor: pointer;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .task-item:hover {
+      border-color: #C7D2FE;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+    .task-item.disabled {
+      cursor: default;
+      background: #FFFFFF;
+    }
+    .task-item.disabled:hover {
+      border-color: #E5E7EB;
+      box-shadow: none;
+    }
+
+    .icon-bubble {
+      flex-shrink: 0;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #DBEAFE;
+      color: #1A56DB;
+    }
+    .task-item.disabled .icon-bubble {
+      background: #F3F4F6;
+      color: #9CA3AF;
+    }
+    .task-item.done .icon-bubble {
+      background: #D1FAE5;
+      color: #047857;
+    }
+
+    .done-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 10px;
+      border-radius: 10px;
+      background: #D1FAE5;
+      color: #065F46;
+      font-size: 11px;
+      font-weight: 600;
+      border: 1px solid #A7F3D0;
+    }
+
+    .task-body {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .task-title-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .task-title {
+      font-size: 15px;
+      font-weight: 500;
+      color: #111827;
+      line-height: 1.4;
+    }
+    .task-subtext {
+      font-size: 13px;
+      color: #6B7280;
+      line-height: 1.55;
+    }
+
+    .pending-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 10px;
+      border-radius: 10px;
+      background: #F3F4F6;
+      color: #6B7280;
+      font-size: 11px;
+      font-weight: 600;
+      border: 1px solid #E5E7EB;
+    }
+
+    .caret {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      color: #1A56DB;
+      margin-top: 4px;
+    }
+
+    .footer-card {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 16px;
+      padding-top: 8px;
+    }
+    .quotes-ready {
+      display: none;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      color: #065F46;
+    }
+    .btn-next {
+      padding: 11px 20px;
+      background: #E5E7EB;
+      color: #9CA3AF;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: not-allowed;
+    }
+    .btn-next:not(:disabled) {
+      background: #1A56DB;
+      color: white;
+      cursor: pointer;
+    }
+    .btn-next:not(:disabled):hover { background: #1644b0; }
+
+    /* Tooltip for disabled tasks */
+    .tooltip-host { position: relative; }
+    .tooltip-host .tooltip {
+      position: absolute;
+      bottom: calc(100% + 6px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: #111827;
+      color: white;
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      white-space: nowrap;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.15s;
+      pointer-events: none;
+      z-index: 20;
+    }
+    .tooltip-host:hover .tooltip { opacity: 1; visibility: visible; }
+  </style>
+</head>
+<body>
+  <div class="hub-page">
+    <div class="hub-content">
+
+      <h1 class="page-header">Let's get you a detailed quote</h1>
+
+      <section>
+        <div class="section-head">
+          <strong>Your tasks</strong>
+          <span class="count-badge" id="task-count">1</span>
+        </div>
+
+        <div class="task-list" id="task-list"></div>
+      </section>
+
+      <div class="footer-card">
+        <button class="btn-next" id="review-btn" disabled>Next: Review quote</button>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="reset.js"></script>
+  <script src="store.js"></script>
+  <script src="core-app.js"></script>
+  <script>
+    const coreState = window.coreApp.get();
+    const completed = coreState.applicationStatus.stepsCompleted || [];
+    const coreDone = completed.includes('submitted');
+    const wcDone = completed.includes('workers-comp');
+    const hiDone = completed.includes('health-insurance');
+
+    const ICONS = {
+      buildings: `<svg width="20" height="20" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M232,216H216V40a8,8,0,0,0-8-8H152a8,8,0,0,0-8,8V216H128V88a8,8,0,0,0-8-8H48a8,8,0,0,0-8,8V216H24a8,8,0,0,0,0,16H232a8,8,0,0,0,0-16ZM56,96h56V216H96V184a8,8,0,0,0-16,0v32H56ZM160,216V48h40V216H184V184a8,8,0,0,0-16,0v32Zm8-112a8,8,0,0,1,8-8h8a8,8,0,0,1,0,16h-8A8,8,0,0,1,168,104Zm0,32a8,8,0,0,1,8-8h8a8,8,0,0,1,0,16h-8A8,8,0,0,1,168,136Zm-96-8a8,8,0,0,1,8-8h8a8,8,0,0,1,0,16H80A8,8,0,0,1,72,128Zm0,32a8,8,0,0,1,8-8h8a8,8,0,0,1,0,16H80A8,8,0,0,1,72,160Z"/></svg>`,
+      shield: `<svg width="20" height="20" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M208,40H48A16,16,0,0,0,32,56v58.77c0,89.61,75.82,119.34,91,124.39a15.53,15.53,0,0,0,10,0c15.2-5.05,91-34.78,91-124.39V56A16,16,0,0,0,208,40Zm0,74.79c0,78.42-66.35,104.62-80,109.18-13.53-4.51-80-30.69-80-109.18V56H208ZM82.34,141.66a8,8,0,0,1,11.32-11.32L112,148.68l50.34-50.34a8,8,0,0,1,11.32,11.32l-56,56a8,8,0,0,1-11.32,0Z"/></svg>`,
+      heart: `<svg width="20" height="20" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M178,32c-20.65,0-38.73,8.88-50,23.89C116.73,40.88,98.65,32,78,32A62.07,62.07,0,0,0,16,94c0,70,103.79,126.66,108.21,129a8,8,0,0,0,7.58,0C136.21,220.66,240,164,240,94A62.07,62.07,0,0,0,178,32ZM128,206.8C109.74,196.16,32,147.69,32,94A46.06,46.06,0,0,1,78,48c19.45,0,35.78,10.36,42.6,27a8,8,0,0,0,14.8,0c6.82-16.67,23.15-27,42.6-27a46.06,46.06,0,0,1,46,46C224,147.61,146.24,196.15,128,206.8Z"/></svg>`,
+      caret: `<svg width="20" height="20" viewBox="0 0 256 256" fill="currentColor"><path d="M181.66,133.66l-80,80a8,8,0,0,1-11.32-11.32L164.69,128,90.34,53.66a8,8,0,0,1,11.32-11.32l80,80A8,8,0,0,1,181.66,133.66Z"/></svg>`,
+    };
+
+    const tasks = [
+      {
+        key: 'core',
+        icon: ICONS.buildings,
+        title: 'Tell us about your company and team',
+        subtext: 'Learning more about your business helps us create accurate quotes.',
+        href: 'core-app-company.html',
+        status: coreDone ? 'done' : 'active',
+      },
+      {
+        key: 'wc',
+        icon: ICONS.shield,
+        title: "Get a workers' comp quote",
+        subtext: "Protect your business and your team. Workers' comp is required for all companies on our PEO plans.",
+        href: 'workers-comp.html',
+        status: wcDone ? 'done' : coreDone ? 'active' : 'disabled',
+      },
+      {
+        key: 'hi',
+        icon: ICONS.heart,
+        title: 'Get a health insurance quote',
+        subtext: 'Get access to competitive Medical, Dental, and Vision plans.',
+        href: 'health-insurance.html',
+        status: hiDone ? 'done' : coreDone ? 'active' : 'disabled',
+      },
+    ];
+
+    // Completed tasks sink to the bottom; active/disabled keep their original order.
+    const orderedTasks = tasks.slice().sort((a, b) => {
+      const aDone = a.status === 'done' ? 1 : 0;
+      const bDone = b.status === 'done' ? 1 : 0;
+      return aDone - bDone;
+    });
+
+    const list = document.getElementById('task-list');
+    orderedTasks.forEach((t) => list.appendChild(buildTask(t)));
+
+    const todoCount = tasks.filter((t) => t.status === 'active').length;
+    document.getElementById('task-count').textContent = String(todoCount);
+    if (todoCount === 0) document.getElementById('task-count').classList.add('muted');
+
+    const allDone = tasks.every((t) => t.status === 'done');
+    const reviewBtn = document.getElementById('review-btn');
+    reviewBtn.disabled = !allDone;
+    reviewBtn.addEventListener('click', () => {
+      if (allDone) window.location.href = 'review-quote.html';
+    });
+
+    function buildTask(t) {
+      const isActive = t.status === 'active';
+      const isDone = t.status === 'done';
+      const isDisabled = t.status === 'disabled';
+
+      const wrapper = document.createElement(isActive ? 'a' : 'div');
+      wrapper.className = 'task-item' + (isDone ? ' done' : '') + (isDisabled ? ' disabled tooltip-host' : '');
+      if (isActive) wrapper.href = t.href;
+
+      const subtextHtml = (isActive || isDone) && t.subtext
+        ? `<span class="task-subtext">${t.subtext}</span>`
+        : '';
+      const badgeHtml = isDone
+        ? '<span class="done-badge">Completed</span>'
+        : isDisabled
+          ? '<span class="pending-badge">Pending</span>'
+          : '';
+      const caretHtml = isActive ? `<span class="caret" aria-hidden="true">${ICONS.caret}</span>` : '';
+      const tooltipHtml = isDisabled
+        ? '<span class="tooltip">Tell us about your company and team first.</span>'
+        : '';
+
+      wrapper.innerHTML = `
+        ${tooltipHtml}
+        <div class="icon-bubble">${t.icon}</div>
+        <div class="task-body">
+          <div class="task-title-row">
+            <span class="task-title">${t.title}</span>
+            ${badgeHtml}
+          </div>
+          ${subtextHtml}
+        </div>
+        ${caretHtml}
+      `;
+      return wrapper;
+    }
+  </script>
+</body>
+</html>

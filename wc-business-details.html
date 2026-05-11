@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex" />
+  <title>Business details — Workers' Comp</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="core-app.css" />
+</head>
+<body>
+  <div class="page">
+    <div class="breadcrumbs">
+      <a href="enrollment-hub.html">Home</a><span>/</span>Business details
+    </div>
+    <h1 class="page-title">Tell us a little bit about your company</h1>
+
+    <ol class="stepper" id="stepper"></ol>
+
+    <form class="form-wrap" id="form" onsubmit="return false">
+      <div class="section">
+        <h2 class="section-heading">Business details</h2>
+        <p class="section-description">Let's ease in with some basic questions about the business.</p>
+
+        <div class="field">
+          <label class="field-label" for="ein">Employer Identification Number (EIN)</label>
+          <input id="ein" type="text" placeholder="##-#######" />
+        </div>
+
+        <div class="field">
+          <label class="field-label">Are you a non-profit?</label>
+          <div class="radio-buttons" data-group="is_non_profit">
+            <label><input type="radio" name="is_non_profit" value="true" /><span>Yes</span></label>
+            <label><input type="radio" name="is_non_profit" value="false" /><span>No</span></label>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="field-label" for="hours_of_operation">Regular hours of operation</label>
+          <input id="hours_of_operation" type="text" placeholder="9-5" />
+        </div>
+
+        <div class="field">
+          <label class="field-label" id="controlling-label">
+            Does the majority ownership of your company also have a controlling interest in another entity?
+          </label>
+          <div class="field-hint">A controlling interest is when the majority ownership controls over 50% of the company.</div>
+          <div class="radio-buttons" data-group="owner_half_stake_other">
+            <label><input type="radio" name="owner_half_stake_other" value="true" /><span>Yes</span></label>
+            <label><input type="radio" name="owner_half_stake_other" value="false" /><span>No</span></label>
+          </div>
+        </div>
+
+        <div id="related-entity" hidden>
+          <div class="field">
+            <label class="field-label" for="re_legal_name">Legal entity name of the related entity</label>
+            <input id="re_legal_name" type="text" />
+          </div>
+          <div class="field">
+            <label class="field-label" for="re_dba">Doing business as (DBA) <span class="field-optional">Optional</span></label>
+            <input id="re_dba" type="text" />
+          </div>
+          <div class="field">
+            <label class="field-label" id="re-desc-label" for="re_description">
+              Describe the business relationship between your company and this related entity.
+            </label>
+            <textarea id="re_description" rows="3"></textarea>
+          </div>
+          <div class="field">
+            <label class="field-label">Does this related entity currently have any W-2 employees?</label>
+            <div class="radio-buttons" data-group="re_has_w2">
+              <label><input type="radio" name="re_has_w2" value="true" /><span>Yes</span></label>
+              <label><input type="radio" name="re_has_w2" value="false" /><span>No</span></label>
+            </div>
+          </div>
+          <div id="re-w2-details" hidden>
+            <div class="field">
+              <label class="field-label" for="re_ein">Employer Identification Number (EIN)</label>
+              <input id="re_ein" type="text" placeholder="##-#######" />
+            </div>
+            <div class="field">
+              <label class="field-label">Are the two companies financially reliant on each other?</label>
+              <div class="radio-buttons" data-group="re_is_dependent">
+                <label><input type="radio" name="re_is_dependent" value="true" /><span>Yes</span></label>
+                <label><input type="radio" name="re_is_dependent" value="false" /><span>No</span></label>
+              </div>
+            </div>
+            <div class="field">
+              <label class="field-label" id="re-overlap-label">
+                Are any employees paid by both entities or, do 2+ jobs for your company?
+              </label>
+              <div class="radio-buttons" data-group="re_has_overlap">
+                <label><input type="radio" name="re_has_overlap" value="true" /><span>Yes</span></label>
+                <label><input type="radio" name="re_has_overlap" value="false" /><span>No</span></label>
+              </div>
+            </div>
+            <div class="field">
+              <label class="field-label">Do the two companies share a physical work location?</label>
+              <div class="radio-buttons" data-group="re_shares_location">
+                <label><input type="radio" name="re_shares_location" value="true" /><span>Yes</span></label>
+                <label><input type="radio" name="re_shares_location" value="false" /><span>No</span></label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+
+    <div class="action-footer">
+      <div class="action-footer-inner">
+        <button class="btn-primary" id="continue-btn">Save &amp; continue</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="reset.js"></script>
+  <script src="core-app.js"></script>
+  <script src="wc-app.js"></script>
+  <script src="wc-stepper.js"></script>
+  <script>
+    wcRenderStepper(0);
+
+    const state = window.wcApp.get();
+
+    // Personalize labels with the company name
+    const coreState = window.coreApp.get();
+    const companyName = coreState?.company?.company_name || 'your company';
+    document.getElementById('controlling-label').textContent =
+      `Does the majority ownership of ${companyName} also have a controlling interest in another entity?`;
+    document.getElementById('re-desc-label').textContent =
+      `Describe the business relationship between ${companyName} and this related entity.`;
+    document.getElementById('re-overlap-label').textContent =
+      `Are any employees paid by both entities or, do 2+ jobs for ${companyName}?`;
+
+    // Restore
+    document.getElementById('ein').value = state.business_details.ein || '';
+    document.getElementById('hours_of_operation').value = state.business_details.hours_of_operation || '';
+    document.getElementById('re_legal_name').value = state.business_details.related_entity.legal_name || '';
+    document.getElementById('re_dba').value = state.business_details.related_entity.dba || '';
+    document.getElementById('re_description').value = state.business_details.related_entity.description || '';
+    document.getElementById('re_ein').value = state.business_details.related_entity.ein || '';
+
+    function wireRadio(group, onChange) {
+      document.querySelectorAll(`[data-group="${group}"] label`).forEach((label) => {
+        const input = label.querySelector('input');
+        input.addEventListener('change', () => {
+          document.querySelectorAll(`[data-group="${group}"] label`).forEach((l) => l.classList.remove('checked'));
+          label.classList.add('checked');
+          if (onChange) onChange(input.value === 'true');
+        });
+      });
+    }
+    function setRadio(group, val) {
+      if (val == null) return;
+      document.querySelectorAll(`[data-group="${group}"] label`).forEach((l) => {
+        const input = l.querySelector('input');
+        if (String(input.value) === String(val)) {
+          input.checked = true;
+          l.classList.add('checked');
+        }
+      });
+    }
+
+    wireRadio('is_non_profit');
+    wireRadio('owner_half_stake_other', (val) => {
+      document.getElementById('related-entity').hidden = !val;
+    });
+    wireRadio('re_has_w2', (val) => {
+      document.getElementById('re-w2-details').hidden = !val;
+    });
+    wireRadio('re_is_dependent');
+    wireRadio('re_has_overlap');
+    wireRadio('re_shares_location');
+
+    setRadio('is_non_profit', state.business_details.is_non_profit);
+    setRadio('owner_half_stake_other', state.business_details.owner_half_stake_other);
+    setRadio('re_has_w2', state.business_details.related_entity.has_w2_employees);
+    setRadio('re_is_dependent', state.business_details.related_entity.is_dependent);
+    setRadio('re_has_overlap', state.business_details.related_entity.has_overlapping_employees);
+    setRadio('re_shares_location', state.business_details.related_entity.shares_location);
+    if (state.business_details.owner_half_stake_other === true) {
+      document.getElementById('related-entity').hidden = false;
+    }
+    if (state.business_details.related_entity.has_w2_employees === true) {
+      document.getElementById('re-w2-details').hidden = false;
+    }
+
+    document.getElementById('continue-btn').addEventListener('click', () => {
+      const bd = state.business_details;
+      bd.ein = document.getElementById('ein').value;
+      bd.hours_of_operation = document.getElementById('hours_of_operation').value;
+      bd.is_non_profit = readBool('is_non_profit');
+      bd.owner_half_stake_other = readBool('owner_half_stake_other');
+      bd.related_entity.legal_name = document.getElementById('re_legal_name').value;
+      bd.related_entity.dba = document.getElementById('re_dba').value;
+      bd.related_entity.description = document.getElementById('re_description').value;
+      bd.related_entity.has_w2_employees = readBool('re_has_w2');
+      bd.related_entity.ein = document.getElementById('re_ein').value;
+      bd.related_entity.is_dependent = readBool('re_is_dependent');
+      bd.related_entity.has_overlapping_employees = readBool('re_has_overlap');
+      bd.related_entity.shares_location = readBool('re_shares_location');
+      window.wcApp.save();
+      window.wcApp.markStepDone('business-details');
+      window.location.href = 'wc-about-your-team.html';
+    });
+
+    function readBool(group) {
+      const v = document.querySelector(`input[name="${group}"]:checked`)?.value;
+      return v == null ? null : v === 'true';
+    }
+  </script>
+</body>
+</html>

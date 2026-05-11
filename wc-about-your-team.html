@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex" />
+  <title>About your team — Workers' Comp</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="core-app.css" />
+  <style>
+    .teammate-box {
+      padding: 14px 16px;
+      border: 1px solid #E5E7EB;
+      border-radius: 8px;
+      background: #F9FAFB;
+      margin-top: 8px;
+    }
+    .teammate-check {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 0;
+      font-size: 14px;
+      color: #111827;
+      cursor: pointer;
+    }
+    .teammate-check input { accent-color: #1A56DB; }
+    .sub-label { font-size: 13px; font-weight: 500; color: #111827; margin: 0 0 6px; }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="breadcrumbs">
+      <a href="enrollment-hub.html">Home</a><span>/</span>About your team
+    </div>
+    <h1 class="page-title">Tell us a little bit about your company</h1>
+
+    <ol class="stepper" id="stepper"></ol>
+
+    <form class="form-wrap" id="form" onsubmit="return false">
+      <div class="section">
+        <h2 class="section-heading">About your team</h2>
+        <p class="section-description">
+          To get you a workers' compensation quote as quickly as possible, we need to understand more about your team.
+        </p>
+        <div id="questions"></div>
+
+        <div class="field" style="margin-top: 24px;">
+          <label class="field-label" for="numberTemp">How many seasonal/temporary workers do you employ?</label>
+          <input id="numberTemp" type="number" min="0" />
+        </div>
+      </div>
+    </form>
+
+    <div class="action-footer">
+      <div class="action-footer-inner">
+        <button class="btn-secondary" id="back-btn">Back</button>
+        <button class="btn-primary" id="continue-btn">Save &amp; continue</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="reset.js"></script>
+  <script src="core-app.js"></script>
+  <script src="wc-app.js"></script>
+  <script src="wc-stepper.js"></script>
+  <script>
+    wcRenderStepper(1);
+
+    const state = window.wcApp.get();
+    const coreState = window.coreApp.get();
+
+    const teammates = (coreState.members || [])
+      .filter((m) => m.first_name || m.last_name)
+      .map((m) => ({ id: m.uuid, name: `${m.first_name || ''} ${m.last_name || ''}`.trim() || '(unnamed)' }));
+
+    // Each entry is a top-level yes/no question; if `select` is set, a follow-up
+    // multi-select of teammates appears when Yes is selected.
+    const QUESTIONS = [
+      { key: 'travel',                     label: 'Do any of your employees travel for work?',                                         select: 'employeesWhoTravel' },
+      { key: 'hardware',                   label: 'Do any of your employees use tools, machinery, or hardware?',                       select: 'employeesWhoUseTools' },
+      { key: 'employeesPhysicalLabor',     label: 'Do any of your employees perform physical labor?',                                  select: 'employeesWhoRequirePhysicalLabor' },
+      { key: 'hasContractors',             label: 'Do you work with any U.S. based, 1099 independent contractors?',                    contractor: true },
+      { key: 'boatsBridges',               label: 'Does anyone work near a body of water, like on a bridge, dock, or barge?',          select: 'employeesWhoUseBoatsBridges' },
+      { key: 'employeesWorkUnderground',   label: 'Do any of your employees work underground?',                                        select: 'employeesWhoWorkUnderground' },
+      { key: 'employeesWorkOnLadders',     label: 'Do any of your employees work on ladders?',                                         select: 'employeesWhoWorkOnLadders' },
+      { key: 'employeePerformHeavyLifting',label: 'Do any of your employees perform heavy lifting?',                                   select: 'employeesWhoPerformHeavyLifting' },
+      { key: 'deliveries',                 label: 'Do any of your employees make deliveries?',                                         select: 'employeesWhoMakeDeliveries' },
+      { key: 'physicalDisability',         label: 'Does anyone have a physical disability?',                                           select: 'employeesWhoHavePhysicalDisabilities' },
+      { key: 'underageOrSenior',           label: 'Do you employ anyone under 18 or over 70?',                                         select: 'underageOrSeniorEmployees' },
+    ];
+
+    const qRoot = document.getElementById('questions');
+
+    QUESTIONS.forEach((q) => {
+      const block = document.createElement('div');
+      block.className = 'field';
+      const toggleId = 'q_' + q.key;
+      block.innerHTML = `
+        <label class="field-label">${q.label}</label>
+        <div class="radio-buttons" data-group="${toggleId}">
+          <label><input type="radio" name="${toggleId}" value="true" /><span>Yes</span></label>
+          <label><input type="radio" name="${toggleId}" value="false" /><span>No</span></label>
+        </div>
+        <div class="teammate-box" id="ext_${q.key}" hidden></div>
+      `;
+      qRoot.appendChild(block);
+
+      const extEl = block.querySelector(`#ext_${q.key}`);
+
+      if (q.contractor) {
+        extEl.innerHTML = `
+          <div class="field">
+            <label class="field-label" for="employmentDuration">What is the duration of their employment?</label>
+            <input id="employmentDuration" type="text" />
+          </div>
+          <div class="field">
+            <label class="field-label" for="numberContractors">How many do you work with annually?</label>
+            <select id="numberContractors">
+              <option value="" disabled selected></option>
+              <option>1-10</option><option>11-20</option><option>21-50</option><option>50+</option>
+            </select>
+          </div>
+          <div class="field">
+            <label class="field-label" for="percentContractors">What percentage of your total payroll goes to these contractors?</label>
+            <select id="percentContractors">
+              <option value="" disabled selected></option>
+              <option>1-25 %</option><option>26-50 %</option><option>51-75 %</option><option>76-100 %</option>
+            </select>
+          </div>
+          <div class="field">
+            <label class="field-label" for="contractorWorkType">Describe their work</label>
+            <textarea id="contractorWorkType" rows="3" maxlength="250"></textarea>
+          </div>
+          <div class="field">
+            <label class="field-label">Do you require independent contractors to maintain their own Workers' Compensation insurance?</label>
+            <div class="radio-buttons" data-group="contractorsHaveWorkComp">
+              <label><input type="radio" name="contractorsHaveWorkComp" value="true" /><span>Yes</span></label>
+              <label><input type="radio" name="contractorsHaveWorkComp" value="false" /><span>No</span></label>
+            </div>
+          </div>
+          <div class="field" id="cois-field" hidden>
+            <label class="field-label">Do you collect these certificates of insurance (COI) to verify proof of coverage?</label>
+            <div class="radio-buttons" data-group="contractorsHaveWorkersCompCOIS">
+              <label><input type="radio" name="contractorsHaveWorkersCompCOIS" value="true" /><span>Yes</span></label>
+              <label><input type="radio" name="contractorsHaveWorkersCompCOIS" value="false" /><span>No</span></label>
+            </div>
+          </div>
+        `;
+      } else if (q.select) {
+        extEl.innerHTML = `
+          <p class="sub-label">Select teammates${q.key === 'boatsBridges' ? ' who work near a body of water' : ''}</p>
+          ${teammates.length === 0
+            ? '<p style="font-size: 13px; color: #6B7280; margin: 0;">No teammates yet — add them in step 2 of the core app.</p>'
+            : teammates.map((t) => `
+              <label class="teammate-check">
+                <input type="checkbox" data-q="${q.select}" value="${t.id}" />
+                <span>${t.name}</span>
+              </label>
+            `).join('')
+          }
+        `;
+      }
+    });
+
+    // Radio wiring — toggle follow-up visibility for each question
+    function wireRadio(group, onChange) {
+      document.querySelectorAll(`[data-group="${group}"] label`).forEach((label) => {
+        const input = label.querySelector('input');
+        input.addEventListener('change', () => {
+          document.querySelectorAll(`[data-group="${group}"] label`).forEach((l) => l.classList.remove('checked'));
+          label.classList.add('checked');
+          if (onChange) onChange(input.value === 'true');
+        });
+      });
+    }
+    function setRadio(group, val) {
+      if (val == null) return;
+      document.querySelectorAll(`[data-group="${group}"] label`).forEach((l) => {
+        const input = l.querySelector('input');
+        if (String(input.value) === String(val)) {
+          input.checked = true;
+          l.classList.add('checked');
+        }
+      });
+    }
+
+    QUESTIONS.forEach((q) => {
+      wireRadio('q_' + q.key, (val) => {
+        document.getElementById('ext_' + q.key).hidden = !val;
+      });
+    });
+    wireRadio('contractorsHaveWorkComp', (val) => {
+      document.getElementById('cois-field').hidden = !val;
+    });
+    wireRadio('contractorsHaveWorkersCompCOIS');
+
+    // Restore saved answers
+    const ay = state.about_your_team;
+    QUESTIONS.forEach((q) => {
+      setRadio('q_' + q.key, ay[q.key]);
+      if (ay[q.key] === true) document.getElementById('ext_' + q.key).hidden = false;
+    });
+    document.getElementById('numberTemp').value = ay.numberTemp || '';
+
+    if (ay.hasContractors === true) {
+      document.getElementById('employmentDuration').value = ay.employmentDuration || '';
+      document.getElementById('numberContractors').value = ay.numberContractors || '';
+      document.getElementById('percentContractors').value = ay.percentContractors || '';
+      document.getElementById('contractorWorkType').value = ay.contractorWorkType || '';
+      setRadio('contractorsHaveWorkComp', ay.contractorsHaveWorkComp);
+      setRadio('contractorsHaveWorkersCompCOIS', ay.contractorsHaveWorkersCompCOIS);
+      if (ay.contractorsHaveWorkComp === true) document.getElementById('cois-field').hidden = false;
+    }
+
+    // Restore teammate multi-select
+    Object.entries(ay.selectedTeammates || {}).forEach(([key, ids]) => {
+      document.querySelectorAll(`input[data-q="${key}"]`).forEach((cb) => {
+        if (ids.includes(cb.value)) cb.checked = true;
+      });
+    });
+
+    document.getElementById('back-btn').addEventListener('click', () => {
+      window.location.href = 'wc-business-details.html';
+    });
+    document.getElementById('continue-btn').addEventListener('click', () => {
+      function readBool(group) {
+        const v = document.querySelector(`input[name="${group}"]:checked`)?.value;
+        return v == null ? null : v === 'true';
+      }
+
+      const t = state.about_your_team;
+      QUESTIONS.forEach((q) => { t[q.key] = readBool('q_' + q.key); });
+      t.numberTemp = document.getElementById('numberTemp').value;
+      if (t.hasContractors === true) {
+        t.employmentDuration = document.getElementById('employmentDuration').value;
+        t.numberContractors = document.getElementById('numberContractors').value;
+        t.percentContractors = document.getElementById('percentContractors').value;
+        t.contractorWorkType = document.getElementById('contractorWorkType').value;
+        t.contractorsHaveWorkComp = readBool('contractorsHaveWorkComp');
+        t.contractorsHaveWorkersCompCOIS = readBool('contractorsHaveWorkersCompCOIS');
+      }
+
+      // Gather teammate selections
+      const selected = {};
+      document.querySelectorAll('input[data-q]:checked').forEach((cb) => {
+        const key = cb.dataset.q;
+        (selected[key] = selected[key] || []).push(cb.value);
+      });
+      t.selectedTeammates = selected;
+
+      window.wcApp.save();
+      window.wcApp.markStepDone('about-your-team');
+      window.location.href = 'wc-about-your-business.html';
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex" />
+  <title>Health insurance info — Acme HR</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="core-app.css" />
+  <style>
+    /* Hide the floating Reset-prototype button while a drawer is open */
+    body.drawer-open #pd-reset-btn { display: none !important; }
+
+    /* Floating close-drawer button that takes the Reset button's spot */
+    #pd-drawer-close {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      z-index: 10000;
+      padding: 8px 14px;
+      background: rgba(17, 24, 39, 0.78);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.18);
+      display: none;
+    }
+    #pd-drawer-close.visible { display: inline-flex; align-items: center; gap: 6px; }
+    #pd-drawer-close:hover { background: rgba(17, 24, 39, 0.95); }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="breadcrumbs">
+      <a href="enrollment-hub.html">Home</a><span>/</span>Health insurance info
+    </div>
+    <h1 class="page-title">Your company and team</h1>
+
+    <ol class="stepper">
+      <li class="step done"><span class="step-num">✓</span>About your company</li>
+      <li class="step done"><span class="step-num">✓</span>About your team</li>
+      <li class="step done"><span class="step-num">✓</span>Review job details</li>
+      <li class="step done"><span class="step-num">✓</span>Review pay info</li>
+      <li class="step current"><span class="step-num">5</span>Health insurance info</li>
+    </ol>
+
+    <div class="table-wrap">
+      <div class="table-toolbar">
+        <div class="toolbar-left" id="toolbar-count"></div>
+        <div class="toolbar-right">
+          <button class="btn-secondary" id="remove-selected" hidden>Remove selected</button>
+          <button class="btn-add" data-add-member>+ Add team member</button>
+        </div>
+      </div>
+      <table class="census">
+        <thead>
+          <tr>
+            <th style="width: 36px;"><input type="checkbox" id="select-all" /></th>
+            <th style="width: 180px;">Employee</th>
+            <th>Waive Health Insurance</th>
+            <th>
+              <span class="th-with-tip">
+                Sex
+                <span class="info-tip" title="This refers to the sex on most legal documents. The carriers need it to provide the most accurate benefits. It cannot be seen by anyone at your company.">i</span>
+              </span>
+            </th>
+            <th>Date of birth</th>
+            <th>Home zip</th>
+            <th>Home state</th>
+            <th>Dependents</th>
+          </tr>
+        </thead>
+        <tbody id="members-body"></tbody>
+      </table>
+    </div>
+    <button class="btn-add" data-add-member style="margin-top: 12px;">+ Add team member</button>
+
+    <div class="action-footer">
+      <div class="action-footer-inner">
+        <button class="btn-secondary" id="go-back">Back</button>
+        <button class="btn-primary" id="save-continue">Submit</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dependent drawer -->
+  <div class="drawer-backdrop" id="dep-backdrop"></div>
+  <aside class="drawer" id="dep-drawer">
+    <div class="drawer-header">
+      <h3 id="dep-drawer-title">Add dependent</h3>
+      <button class="drawer-close" id="dep-close">×</button>
+    </div>
+    <div class="drawer-body">
+      <div class="field">
+        <label class="field-label" for="d-type">Relationship</label>
+        <select id="d-type">
+          <option value="" disabled selected></option>
+          <option value="spouse">Spouse</option>
+          <option value="domestic_partner">Domestic partner</option>
+          <option value="child">Child</option>
+        </select>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label class="field-label" for="d-first">First name</label>
+          <input id="d-first" type="text" />
+        </div>
+        <div class="field">
+          <label class="field-label" for="d-last">Last name</label>
+          <input id="d-last" type="text" />
+        </div>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label class="field-label" for="d-sex">Sex</label>
+          <select id="d-sex">
+            <option value="" disabled selected></option>
+            <option value="M">Male</option>
+            <option value="F">Female</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="field-label" for="d-dob">Date of birth</label>
+          <input id="d-dob" type="date" />
+        </div>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label class="field-label" for="d-zip">Home zip</label>
+          <input id="d-zip" type="text" />
+        </div>
+        <div class="field">
+          <label class="field-label" for="d-state">Home state</label>
+          <select id="d-state"><option value="" disabled selected></option></select>
+        </div>
+      </div>
+    </div>
+    <div class="drawer-footer">
+      <button class="btn-secondary" id="dep-cancel">Cancel</button>
+      <button class="btn-primary" id="dep-save">Save dependent</button>
+    </div>
+  </aside>
+
+  <!-- Floating close-drawer button (appears in place of the Reset prototype button while the drawer is open) -->
+  <button type="button" id="pd-drawer-close" aria-label="Close drawer">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    Close
+  </button>
+
+  <script src="reset.js"></script>
+  <script src="store.js"></script>
+  <script src="core-app.js"></script>
+  <script>
+    const state = window.coreApp.get();
+    const ref = window.CORE_APP_REF;
+
+    const depStateSel = document.getElementById('d-state');
+    ref.states.forEach((s) => {
+      const opt = document.createElement('option');
+      opt.value = s;
+      opt.textContent = s;
+      depStateSel.appendChild(opt);
+    });
+
+    const selectedIds = new Set();
+    let editingParent = null;
+    let editingIndex = null;
+
+    function flattened() {
+      const rows = [];
+      state.members.forEach((m) => {
+        rows.push({ member: m, isDep: false });
+        (m.dependent_censuses || []).forEach((dep, i) =>
+          rows.push({ member: m, dep, isDep: true, index: i })
+        );
+      });
+      return rows;
+    }
+
+    function formatSex(v) {
+      return v === 'M' ? 'Male' : v === 'F' ? 'Female' : '';
+    }
+
+    function renderRows() {
+      const body = document.getElementById('members-body');
+      body.innerHTML = '';
+      flattened().forEach((r) => body.appendChild(buildRow(r)));
+      document.getElementById('toolbar-count').textContent =
+        `${state.members.length} team member${state.members.length === 1 ? '' : 's'}`;
+      document.getElementById('select-all').checked =
+        state.members.length > 0 && selectedIds.size === state.members.length;
+      document.getElementById('remove-selected').hidden = selectedIds.size === 0;
+    }
+
+    function buildRow(r) {
+      const tr = document.createElement('tr');
+      if (r.isDep) tr.classList.add('row-dep');
+
+      // Select cell
+      const selTd = document.createElement('td');
+      if (!r.isDep) {
+        const cb = document.createElement('input');
+        cb.type = 'checkbox';
+        cb.checked = selectedIds.has(r.member.uuid);
+        cb.addEventListener('change', () => {
+          if (cb.checked) selectedIds.add(r.member.uuid); else selectedIds.delete(r.member.uuid);
+        });
+        selTd.appendChild(cb);
+      }
+      tr.appendChild(selTd);
+
+      // Employee / dependent-type label
+      const nameTd = document.createElement('td');
+      nameTd.innerHTML = r.isDep
+        ? `<span class="readonly-cell">${capitalize(r.dep.participant_type || '')}</span>`
+        : `<span class="readonly-cell">${r.member.first_name || ''} ${r.member.last_name || ''}</span>`.trim();
+      tr.appendChild(nameTd);
+
+      // Waive / dep summary
+      const waiveTd = document.createElement('td');
+      if (r.isDep) {
+        const btn = document.createElement('button');
+        btn.className = 'dep-summary-btn';
+        btn.textContent = `${r.dep.first_name || ''} ${r.dep.last_name || ''}, ${r.dep.date_of_birth || ''}, ${formatSex(r.dep.sex)}, ${r.dep.home_state || ''}, ${r.dep.home_zip || ''}`;
+        btn.addEventListener('click', () => openDepDrawer(r.member, r.dep, r.index));
+        waiveTd.appendChild(btn);
+      } else {
+        const label = document.createElement('label');
+        label.className = 'waive-label';
+        const cb = document.createElement('input');
+        cb.type = 'checkbox';
+        cb.checked = !!r.member.health_ins_info.isWaiving;
+        cb.addEventListener('change', () => {
+          r.member.health_ins_info.isWaiving = cb.checked;
+          window.coreApp.save();
+          renderRows();
+        });
+        label.appendChild(cb);
+        label.appendChild(document.createTextNode(' Waive'));
+        waiveTd.appendChild(label);
+      }
+      tr.appendChild(waiveTd);
+
+      // Sex
+      const sexTd = document.createElement('td');
+      if (!r.isDep) {
+        const sel = document.createElement('select');
+        sel.innerHTML = '<option value=""></option>' +
+          ref.sexes.map((s) => `<option value="${s.value}">${s.label}</option>`).join('');
+        sel.value = r.member.gender || '';
+        sel.addEventListener('change', () => {
+          r.member.gender = sel.value;
+          window.coreApp.save();
+        });
+        sexTd.appendChild(sel);
+      } else {
+        sexTd.innerHTML = '&nbsp;';
+      }
+      tr.appendChild(sexTd);
+
+      // DOB
+      const dobTd = document.createElement('td');
+      if (!r.isDep) {
+        const inp = document.createElement('input');
+        inp.type = 'date';
+        inp.value = r.member.date_of_birth || '';
+        inp.addEventListener('input', () => {
+          r.member.date_of_birth = inp.value;
+          window.coreApp.save();
+        });
+        dobTd.appendChild(inp);
+      } else {
+        dobTd.innerHTML = '&nbsp;';
+      }
+      tr.appendChild(dobTd);
+
+      // Home zip
+      const zipTd = document.createElement('td');
+      if (!r.isDep) {
+        const inp = document.createElement('input');
+        inp.type = 'text';
+        inp.value = r.member.home_zip || '';
+        inp.addEventListener('input', () => {
+          r.member.home_zip = inp.value;
+          window.coreApp.save();
+        });
+        zipTd.appendChild(inp);
+      } else {
+        zipTd.innerHTML = '&nbsp;';
+      }
+      tr.appendChild(zipTd);
+
+      // Home state
+      const stTd = document.createElement('td');
+      if (!r.isDep) {
+        const sel = document.createElement('select');
+        sel.innerHTML = '<option value=""></option>' +
+          ref.states.map((s) => `<option value="${s}">${s}</option>`).join('');
+        sel.value = r.member.home_state || '';
+        sel.addEventListener('change', () => {
+          r.member.home_state = sel.value;
+          window.coreApp.save();
+        });
+        stTd.appendChild(sel);
+      } else {
+        stTd.innerHTML = '&nbsp;';
+      }
+      tr.appendChild(stTd);
+
+      // Dependents column
+      const depTd = document.createElement('td');
+      if (r.isDep) {
+        depTd.innerHTML = '&nbsp;';
+      } else if (!r.member.health_ins_info.isWaiving) {
+        const btn = document.createElement('button');
+        btn.className = 'add-dep-btn';
+        btn.textContent = 'Add dependent';
+        btn.addEventListener('click', () => openDepDrawer(r.member));
+        depTd.appendChild(btn);
+      }
+      tr.appendChild(depTd);
+
+      return tr;
+    }
+
+    function capitalize(s) { return s ? s[0].toUpperCase() + s.slice(1).replace(/_/g, ' ') : ''; }
+
+    const floatClose = document.getElementById('pd-drawer-close');
+    floatClose.addEventListener('click', () => closeDepDrawer());
+
+    function openDepDrawer(member, dep, index) {
+      editingParent = member.uuid;
+      editingIndex = index ?? null;
+      document.getElementById('dep-drawer-title').textContent = dep ? 'Edit dependent' : 'Add dependent';
+      document.getElementById('d-type').value = dep?.participant_type || '';
+      document.getElementById('d-first').value = dep?.first_name || '';
+      document.getElementById('d-last').value = dep?.last_name || '';
+      document.getElementById('d-sex').value = dep?.sex || '';
+      document.getElementById('d-dob').value = dep?.date_of_birth || '';
+      document.getElementById('d-zip').value = dep?.home_zip || '';
+      document.getElementById('d-state').value = dep?.home_state || '';
+      document.getElementById('dep-backdrop').classList.add('open');
+      document.getElementById('dep-drawer').classList.add('open');
+      document.body.classList.add('drawer-open');
+      floatClose.classList.add('visible');
+    }
+    function closeDepDrawer() {
+      editingParent = null;
+      editingIndex = null;
+      document.getElementById('dep-backdrop').classList.remove('open');
+      document.getElementById('dep-drawer').classList.remove('open');
+      document.body.classList.remove('drawer-open');
+      floatClose.classList.remove('visible');
+    }
+    document.getElementById('dep-backdrop').addEventListener('click', closeDepDrawer);
+    document.getElementById('dep-close').addEventListener('click', closeDepDrawer);
+    document.getElementById('dep-cancel').addEventListener('click', closeDepDrawer);
+
+    document.getElementById('dep-save').addEventListener('click', () => {
+      const m = state.members.find((x) => x.uuid === editingParent);
+      if (!m) return closeDepDrawer();
+      const dep = {
+        participant_type: document.getElementById('d-type').value,
+        first_name: document.getElementById('d-first').value,
+        last_name: document.getElementById('d-last').value,
+        sex: document.getElementById('d-sex').value,
+        date_of_birth: document.getElementById('d-dob').value,
+        home_zip: document.getElementById('d-zip').value,
+        home_state: document.getElementById('d-state').value,
+      };
+      m.dependent_censuses = m.dependent_censuses || [];
+      if (editingIndex != null) m.dependent_censuses[editingIndex] = dep;
+      else m.dependent_censuses.push(dep);
+      window.coreApp.save();
+      closeDepDrawer();
+      renderRows();
+    });
+
+    document.getElementById('select-all').addEventListener('change', (e) => {
+      selectedIds.clear();
+      if (e.target.checked) state.members.forEach((m) => selectedIds.add(m.uuid));
+      renderRows();
+    });
+    document.getElementById('remove-selected').addEventListener('click', () => {
+      window.coreApp.removeMembers([...selectedIds]);
+      selectedIds.clear();
+      renderRows();
+    });
+    window.addEventListener('pd:members-updated', renderRows);
+
+    document.getElementById('go-back').addEventListener('click', () => {
+      window.location.href = 'core-app-pay.html';
+    });
+    document.getElementById('save-continue').addEventListener('click', () => {
+      window.coreApp.markStepDone('health-info');
+      window.coreApp.markStepDone('submitted');
+      window.location.href = 'enrollment-hub.html';
+    });
+
+    renderRows();
+  </script>
+  <script src="member-drawer.js"></script>
+</body>
+</html>
