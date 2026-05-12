@@ -4,109 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="robots" content="noindex" />
+  <meta http-equiv="refresh" content="0; url=pricing.html" />
   <title>Acme HR Prototype</title>
-  <link rel="stylesheet" href="styles.css" />
-  <style>
-    .proto-hub {
-      max-width: 640px;
-      margin: 0 auto;
-      padding: 48px 24px 64px;
-    }
-    .proto-hub h1 {
-      font-size: 24px;
-      font-weight: 700;
-      margin: 0 0 8px;
-      color: var(--color-text-primary);
-    }
-    .proto-hub > p {
-      margin: 0 0 28px;
-      font-size: 15px;
-      color: var(--color-text-secondary);
-      line-height: 1.55;
-    }
-    .proto-hub ul {
-      margin: 0;
-      padding: 0;
-      list-style: none;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-    .proto-hub a {
-      display: block;
-      padding: 14px 16px;
-      border: 1px solid var(--color-border);
-      border-radius: 8px;
-      text-decoration: none;
-      color: var(--color-text-primary);
-      font-weight: 600;
-      font-size: 15px;
-      background: var(--color-white);
-      transition: border-color 0.15s, background 0.15s;
-    }
-    .proto-hub a:hover {
-      border-color: var(--color-primary);
-      background: var(--color-primary-light);
-    }
-    .proto-hub a span {
-      display: block;
-      font-weight: 400;
-      font-size: 13px;
-      color: var(--color-text-secondary);
-      margin-top: 6px;
-      line-height: 1.45;
-    }
-    .proto-hub .hint {
-      margin-top: 24px;
-      padding: 12px 14px;
-      font-size: 13px;
-      color: #374151;
-      background: var(--color-primary-light);
-      border: 1px solid var(--color-primary-border);
-      border-radius: 8px;
-      line-height: 1.5;
-    }
-  </style>
 </head>
-<body style="background: var(--color-surface);">
-  <div class="proto-hub">
-    <h1>Funnel research prototype</h1>
-    <p>Choose where to start. The site root used to redirect straight to pricing; this page lists the main flows.</p>
-
-    <ul>
-      <li>
-        <a href="pricing.html">
-          Pricing
-          <span>Former default entry from <code style="font-size:12px;">index.html</code></span>
-        </a>
-      </li>
-      <li>
-        <a href="enrollment-hub.html">Enrollment hub</a>
-      </li>
-      <li>
-        <a href="login.html">Login</a>
-      </li>
-      <li>
-        <a href="core-app-company.html">
-          Core app — company
-          <span>Step 1 of the company / team flow</span>
-        </a>
-      </li>
-      <li>
-        <a href="core-app-members.html">
-          Core app — about your team
-          <span>Upload census files, then use &ldquo;Process documents&rdquo; to see the extraction loading state</span>
-        </a>
-      </li>
-      <li>
-        <a href="workers-comp.html">Workers&rsquo; comp flow</a>
-      </li>
-    </ul>
-
-    <p class="hint">
-      <strong>Document extraction demo:</strong> Open <strong>About your team</strong>, add or keep sample files, click
-      <strong>Process documents</strong> — the loading panel appears before the table fills in.
-    </p>
-  </div>
+<body>
+  <script>window.location.replace('pricing.html');</script>
+  <p><a href="pricing.html">Continue to pricing</a></p>
 </body>
 </html>
